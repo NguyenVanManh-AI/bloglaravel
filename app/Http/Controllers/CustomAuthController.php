@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Brian2694\Toastr\Facades\Toastr;
 use Laravel\Socialite\Facades\Socialite;
 use Exception;
-
+use Mail;
+use App\Mail\NotifyMail;
 
 class CustomAuthController extends Controller
 {
@@ -31,7 +32,10 @@ class CustomAuthController extends Controller
             'email' => 'required',
             'password' => 'required',
         ]);
-   
+
+
+        $user = User::where('email', $request->email)->first();
+        // $this->sendMail($user);
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) { // trong này bao gồm cả hàm xác nhận đã login rồi 
             Toastr::success('Đăng nhập thành công');
@@ -71,11 +75,13 @@ class CustomAuthController extends Controller
         }
         else {
             $data = $request->all();
-            User::create([
+            $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password'])
             ]);
+            Toastr::success('Đăng kí tài khoản thành công !');
+            $this->sendMail($user);
         }
         return redirect("dashboard")->withSuccess('You have signed-in');
     }
@@ -113,6 +119,7 @@ class CustomAuthController extends Controller
                 if($findEmail){ // đã có trong hệ thống thì update id 
                     $findEmail->update(['google_id' => $user->id]);
                     Auth::login($findEmail); // xác nhận đã login 
+                    Toastr::success('Đăng nhập thành công');
                 }
                 else { // chưa có thì tạo tài khoản 
                     $newUser = User::create([
@@ -122,11 +129,26 @@ class CustomAuthController extends Controller
                         // 'password' => encrypt('123456vanmanh') // mật khẩu mặt định 
                     ]);
                     Auth::login($newUser); // xác nhận đã login 
+                    Toastr::success('Đăng kí thành công');
+                    $this->sendMail($newUser);
                 }
                 return redirect()->intended('dashboard');
-            }
+            }            
         } catch (Exception $e) {
             dd($e->getMessage());
+        }
+    }
+
+    // send Mail 
+    public function sendMail($user){
+        Mail::to($user->email)->send(new NotifyMail($user->name));     
+        if (Mail::failures()) {
+            Toastr::error('Send Mail Error !');
+            return response();
+        }
+        else{
+            Toastr::success('Send Mail Success !');
+            return response();
         }
     }
 }
