@@ -1,0 +1,48 @@
+B1. Code theo chuẩn mực (không code tùy tiện quá) cho ra chức năng đã 
+B2. Sau đó tối ưu cho code ngắn lại 
+
+
+Features 
++ chat real time - socket 
++ mở rộng tính năng cmt 
++ mutil auth (hệ thống đăng nhập 2 bảng : user và admin => @guest và @admin => đăng kí @admin trong Kernel.php)
++ OAth2 Google , Facebook 
++ Deploy Laravel to infinity hoặc Railway 
+
+
+
+
+
+============================ Note ============================
+- @guest là kiểm tra người dùng đã đăng nhập hay chưa 
+    + đây là 1 role 
+    + nếu 2 role thì sao ? 
+    + đăng nhập bằng 2 bảng admin và user (key : mutilple - authetication)
+
+- Bỏ quá nhiều folder trong vs code thì sẽ làm cho chức năng ctrl + click => di chuyển đến hàm sẽ không hoạt động nữa, 
+    vì nó tìm quá nhiều file 
+
+
+
+
+
+=======================================================================
+
+
+
+Câu lệnh	Mô tả
+composer create-project --prefer-dist laravel/laravel <tên>	Tạo một project Laravel mới
+php artisan serve	Chạy ứng dụng Laravel trên localhost
+php artisan make:migration create_<tên-bảng>_table	Tạo migration mới để tạo bảng trong cơ sở dữ liệu
+php artisan migrate	Chạy migration để tạo bảng trong cơ sở dữ liệu
+php artisan make:model <tên-model>	Tạo model mới
+php artisan make:controller <tên-controller>	Tạo controller mới
+php artisan make:request <tên-request>	Tạo request mới
+php artisan make:middleware <tên-middleware>	Tạo middleware mới
+php artisan make:controller --resource <tên-controller>	Tạo resource controller mới
+php artisan make:factory <tên-factory> --model=<tên-model>	Tạo factory mới
+php artisan make:seeder <tên-seeder>	Tạo seeder mới
+php artisan db:seed	Chạy seeder để điền dữ liệu vào cơ sở dữ liệu
+php artisan make:route <tên-route>	Tạo mới một route
+php artisan key:generate	Tạo một key ứng dụng Laravel
+php artisan migrate:rollback	Xóa bảng trong cơ sở dữ liệu
