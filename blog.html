@@ -3,10 +3,11 @@ B2. Sau đó tối ưu cho code ngắn lại
 
 
 Features 
-+ chat real time - socket 
-+ mở rộng tính năng cmt 
-+ mutil auth (hệ thống đăng nhập 2 bảng : user và admin => @guest và @admin => đăng kí @admin trong Kernel.php)
++ Mở rộng tính năng cmt 
++ Chat real time - socket 
++ Mutil auth (hệ thống đăng nhập 2 bảng : user và admin => @guest và @admin => đăng kí @admin trong Kernel.php)
 + OAth2 Google , Facebook 
++ Send Mail 
 + Deploy Laravel to infinity hoặc Railway 
 
 
@@ -23,6 +24,9 @@ Features
     vì nó tìm quá nhiều file 
 
 
+- Bật tắt thanh Debug trong Laravel : 
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>composer require barryvdh/laravel-debugbar --dev
+    + env : APP_DEBUG=true # tắt thanh https://github.com/barryvdh/laravel-debugbar thì chuyển thành false 
 
 
 
@@ -46,3 +50,115 @@ php artisan db:seed	Chạy seeder để điền dữ liệu vào cơ sở dữ l
 php artisan make:route <tên-route>	Tạo mới một route
 php artisan key:generate	Tạo một key ứng dụng Laravel
 php artisan migrate:rollback	Xóa bảng trong cơ sở dữ liệu
+
+======================================================================================================
+Dưới đây là danh sách các directive (câu lệnh điều khiển) trong Laravel Blade Template Engine:
+@extends: Được sử dụng để khai báo layout mà view sẽ kế thừa.
+@section và @endsection: Được sử dụng để định nghĩa một section trong view.
+@yield: Được sử dụng để khai báo một điểm gọi (yield) trong layout để các view con có thể đổ nội dung vào.
+@include: Được sử dụng để include một view vào trong view hiện tại.
+@if, @elseif và @else: Sử dụng để kiểm tra điều kiện và hiển thị nội dung tương ứng.
+@isset và @empty: Sử dụng để kiểm tra xem một biến đã được định nghĩa và không rỗng hay không.
+@unless: Tương tự như @if, nhưng kiểm tra điều kiện ngược lại.
+@switch, @case và @default: Cho phép xử lý nhiều trường hợp và chọn một khối nội dung tương ứng dựa trên giá trị của biến.
+@for: Dùng để lặp qua một phạm vi số lần xác định và hiển thị nội dung tương ứng cho mỗi lần lặp.
+@foreach: Dùng để lặp qua một mảng hoặc một collection và hiển thị nội dung tương ứng cho mỗi phần tử.
+@while: Sử dụng để lặp lại một đoạn mã trong khi một điều kiện cụ thể đúng.
+@php và @endphp: Dùng để viết mã PHP trực tiếp trong template.
+@verbatim và @endverbatim: Cho phép hiển thị một đoạn mã nguyên thủy mà không được xử lý như Blade syntax.
+@stack và @push: Được sử dụng để quản lý stack (ngăn xếp) các section trong view.
+@auth và @guest: Được sử dụng để kiểm tra xem người dùng đã đăng nhập hay chưa.
+@error: Sử dụng để hiển thị các thông báo lỗi của validation.
+@csrf: Tạo một hidden input chứa token CSRF (Cross-Site Request Forgery) để bảo vệ form.
+Đây là một số directive phổ biến trong Laravel Blade, có thể giúp bạn xây dựng các template linh hoạt và mạnh mẽ trong ứng dụng Laravel của mình.
+
+
+
+Cách 1 
+public function index()
+{
+    # Nếu mà đã đã đăng nhập thì không vào được trang login nữa . 
+    # Ta cũng có một cách khác đó là đăng kí middleware cho nó  
+    // if(Auth::check()){
+    //     return redirect("dashboard");
+    // }
+    return view('auth.login');
+} 
+
+Cách 2 
+Đầu tiên, hãy tạo một middleware mới bằng cách chạy lệnh artisan:
+go
+Copy code
+php artisan make:middleware RedirectIfAuthenticated
+Mở file middleware vừa tạo (app/Http/Middleware/RedirectIfAuthenticated.php) và chỉnh sửa phương thức handle như sau:
+php
+Copy code
+public function handle($request, Closure $next, $guard = null)
+{
+    if (Auth::guard($guard)->check()) {
+        // Nếu người dùng đã đăng nhập, chuyển hướng đến trang dashboard
+        return redirect()->route('dashboard');
+    }
+
+    // Ngược lại, tiếp tục xử lý request
+    return $next($request);
+}
+Đăng ký middleware trong file app/Http/Kernel.php bằng cách thêm vào thuộc tính $routeMiddleware:
+php
+Copy code
+protected $routeMiddleware = [
+    // ...
+    'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+];
+Bây giờ, bạn có thể sử dụng middleware guest trong các route mà bạn muốn kiểm tra xem người dùng đã đăng nhập hay chưa. Ví dụ:
+php
+Copy code
+Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login')->middleware('guest');
+Route::get('/register', 'Auth\RegisterController@showRegistrationForm')->name('register')->middleware('guest');
+Trong ví dụ trên, middleware guest sẽ được áp dụng cho các route /login và /register, đảm bảo rằng chỉ những người dùng chưa đăng nhập mới có thể truy cập vào các trang này. Nếu người dùng đã đăng nhập, middleware sẽ chuyển hướng người dùng đến trang dashboard.
+
+Lưu ý rằng bạn cần đảm bảo rằng route dashboard đã được đăng ký và middleware auth được sử dụng để bảo vệ trang dashboard.
+
+
+
+
+
+================================================================
++ trong blade thì kiểm tra đã đăng nhập hay chưa bằng @guest 
++ trong web.php (route) thì dùng : middleware(['auth'])
+Route::middleware(['auth'])->group(function () {
+    Route::get('dashboard', [CustomAuthController::class, 'dashboard']);
+    Route::get('signout', [CustomAuthController::class, 'signOut'])->name('signout');
+});
++ trong controller thì dùng : 
+if(Auth::check()){
+    return redirect("dashboard");
+}
+
+
+
+================================================================
++ Notify trong laravel : 
+    + https://github.com/brian2694/laravel-toastr , https://www.souysoeng.com/2021/03/laravel-8x-toastr-notifications-example.html 
+    + use Brian2694\Toastr\Facades\Toastr;
+    
+    + Toastr::info('message', 'title', ['options']);
+    + Toastr::success('message', 'title', ['options']);
+    + Toastr::warning('message', 'title', ['options']);
+    + Toastr::error('message', 'title', ['options']);
+    + Toastr::clear();
+    + Toastr()->info('message', 'title', ['options']);
+
+    + step 
+        + composer require brian2694/laravel-toastr
+        + thêm vào config/app.php
+            + Brian2694\Toastr\ToastrServiceProvider::class,
+            + 'Toastr'  => Brian2694\Toastr\Facades\Toastr::class,
+        + php artisan vendor:publish
+            => chọn số của package laravel-toastr => enter 
+        + thêm vào body của trang web : 
+            <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+            <script src="http://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
+            {!! Toastr::message() !!}
+        + thêm vào head của trang web : 
+            <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css"> 

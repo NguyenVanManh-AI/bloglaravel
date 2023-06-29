@@ -7,12 +7,18 @@ use Hash;
 use Session;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Brian2694\Toastr\Facades\Toastr;
 
 class CustomAuthController extends Controller
 {
 
     public function index()
     {
+        # Nếu mà đã đã đăng nhập thì không vào được trang login nữa . 
+        # Ta cũng có một cách khác đó là đăng kí middleware cho nó  
+        if(Auth::check()){
+            return redirect("dashboard");
+        }
         return view('auth.login');
     }  
       
@@ -25,15 +31,20 @@ class CustomAuthController extends Controller
    
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
+            Toastr::success('Đăng nhập thành công');
             return redirect()->intended('dashboard')
                         ->withSuccess('Signed in');
         }
-  
         return redirect("login")->withSuccess('Login details are not valid');
     }
 
-    public function registration()
+    public function registration()  
     {
+        # Nếu mà đã đã đăng nhập thì không vào được trang register nữa . 
+        # Ta cũng có một cách khác đó là đăng kí middleware cho nó  
+        if(Auth::check()){
+            return redirect("dashboard");
+        }
         return view('auth.registration');
     }
       
@@ -65,7 +76,6 @@ class CustomAuthController extends Controller
         if(Auth::check()){
             return view('dashboard');
         }
-  
         return redirect("login")->withSuccess('You are not allowed to access');
     }
     
