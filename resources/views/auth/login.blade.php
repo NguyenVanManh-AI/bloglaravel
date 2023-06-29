@@ -35,6 +35,11 @@
                             </div>
                         </form>
                     </div>
+                    <div style="display: flex;justify-content: center" class="flex items-center justify-end mt-2 mb-2">
+                        <a href="{{ url('authorized/google') }}">
+                            <img style="width: 200px" src="https://onymos.com/wp-content/uploads/2020/10/google-signin-button.png" style="margin-left: 3em;">
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

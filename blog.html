@@ -6,7 +6,7 @@ Features
 + Mở rộng tính năng cmt 
 + Chat real time - socket 
 + Mutil auth (hệ thống đăng nhập 2 bảng : user và admin => @guest và @admin => đăng kí @admin trong Kernel.php)
-+ OAth2 Google , Facebook 
++ OAth2 Google , Facebook (OK)
 + Send Mail 
 + Deploy Laravel to infinity hoặc Railway 
 
@@ -162,3 +162,100 @@ if(Auth::check()){
             {!! Toastr::message() !!}
         + thêm vào head của trang web : 
             <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css"> 
+
+================================================================
+Login by Google tóm tắt : 
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>composer require laravel/socialite
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>composer require socialiteproviders/google
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan make:migration add_google_id_to_users_table
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\database\migrations\2023_06_29_075104_add_google_id_to_users_table.php
+        <?php
+
+        use Illuminate\Database\Migrations\Migration;
+        use Illuminate\Database\Schema\Blueprint;
+        use Illuminate\Support\Facades\Schema;
+
+        class AddGoogleIdToUsersTable extends Migration
+        {
+            /**
+            * Run the migrations.
+            *
+            * @return void
+            */
+            public function up()
+            {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->string('google_id')->nullable();
+                });
+            }
+
+            public function down()
+            {
+                Schema::table('users', function (Blueprint $table) {            
+                    $table->dropColumn('google_id');
+                });
+            }
+        }
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan migrate
+Google API : https://console.cloud.google.com/apis/credentials/oauthclient/1079359168744-ehm0qmfgmg4imvbk33n7d97t69sfjb87.apps.googleusercontent.com
+    Authorized JavaScript origins : http://127.0.0.1:8000
+    Authorized redirect URIs : http://localhost:8000/authorized/google/callback  <====
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\config\services.php
+        'google' => [
+            'client_id' => '1079359168744-ehm0qmfgmg4imvbk33n7d97t69sfjb87.apps.googleusercontent.com',
+            'client_secret' => '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',
+            'redirect' => 'http://localhost:8000/authorized/google/callback',    <==== đây là LINK đăng kí trên google API 
+        ],
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Controllers\CustomAuthController.php
+        // Login by Google 
+        public function redirectToGoogle()
+        {
+            return Socialite::driver('google')->redirect();
+        }
+        public function handleGoogleCallback()
+        {
+            try {
+                $user = Socialite::driver('google')->user();
+                $finduser = User::where('google_id', $user->id)->first();
+                if($finduser){ // nếu đã tồn tại thì cho vào dashboard 
+                    Auth::login($finduser);
+                    return redirect()->intended('dashboard');
+                }else{// nếu chưa thì tạo account 
+                    $newUser = User::create([
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'google_id'=> $user->id,    
+                        'password' => encrypt('123456vanmanh') // mật khẩu mặt định 
+                    ]);
+                    Auth::login($newUser);
+                    return redirect()->intended('dashboard');
+                }
+            } catch (Exception $e) {
+                dd($e->getMessage());
+            }
+        }
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\resources\views\auth\login.blade.php
+        <div class="flex items-center justify-end mt-4">
+            <a href="{{ url('authorized/google') }}">   <=== đây là link ở web.php 
+                <img src="https://developers.google.com/identity/images/btn_google_signin_dark_normal_web.png" style="margin-left: 3em;">
+            </a>
+        </div>
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\routes\web.php
+        Route::get('authorized/google', [CustomAuthController::class, 'redirectToGoogle']); <=== đây là link ở blade nhằm gọi đến hàm trong Controller 
+        Route::get('authorized/google/callback', [CustomAuthController::class, 'handleGoogleCallback']);
+
+=> XONG , sau đó xử lý gì ở Controller cho hợp lý thì xử lý .  
+================================================================
+    login bằng google 
+        + nếu google_id này đã có trong db => cho login vào  
+        + nếu google_id này chưa có trong db 
+            + nếu email này chưa có trong db => tạo tài khoản mới (password để trống)
+            + nếu email này đã có trong db => chỉ cần bổ sung thêm google id 
+            
+    user register 
+        + mail đã tồn tại 
+            + có password => không cho đăng kí nữa 
+            + không có password => đây là tài khoản đăng nhập trước đó bằng google 
+                => lấy password người dùng nhập bổ sung vào  
+        + mail chưa tồn tại => đăng kí như bình thường 
+

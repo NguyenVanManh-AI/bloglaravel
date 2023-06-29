@@ -11,3 +11,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', [CustomAuthController::class, 'dashboard']);
     Route::get('signout', [CustomAuthController::class, 'signOut'])->name('signout');
 });
+Route::get('authorized/google', [CustomAuthController::class, 'redirectToGoogle']);
+Route::get('authorized/google/callback', [CustomAuthController::class, 'handleGoogleCallback']);
