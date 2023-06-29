@@ -16,6 +16,7 @@
         "laravel/framework": "^8.0",
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.0",
+        "socialiteproviders/github": "^4.1",
         "socialiteproviders/google": "^4.1"
     },
     "require-dev": {

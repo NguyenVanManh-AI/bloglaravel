@@ -34,6 +34,11 @@ return [
         'client_secret' => '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',
         'redirect' => 'http://localhost:8000/authorized/google/callback',
     ],
+    'github' => [
+        'client_id' => 'b1b1f3e7c5765cfd3510',
+        'client_secret' => '48474a596ae636bba226c9b0f704221f2fcc3bb7',
+        'redirect' => 'http://localhost:8000/authorized/github/callback',
+    ],
 
 
 ];

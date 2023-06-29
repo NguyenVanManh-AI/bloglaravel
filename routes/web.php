@@ -13,3 +13,5 @@ Route::middleware(['auth'])->group(function () {
 });
 Route::get('authorized/google', [CustomAuthController::class, 'redirectToGoogle']);
 Route::get('authorized/google/callback', [CustomAuthController::class, 'handleGoogleCallback']);
+Route::get('authorized/github', [CustomAuthController::class, 'redirectToGithub']);
+Route::get('authorized/github/callback', [CustomAuthController::class, 'handleGithubCallback']);

@@ -7,7 +7,7 @@ Features
 + Chat real time - socket 
 + Mutil auth (hệ thống đăng nhập 2 bảng : user và admin => @guest và @admin => đăng kí @admin trong Kernel.php)
 + OAth2 Google , Facebook (OK)
-+ Send Mail 
++ Send Mail (OK)
 + Deploy Laravel to infinity hoặc Railway 
 
 
@@ -197,6 +197,11 @@ C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\database\migrations\2023_06_29_0
             }
         }
 C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan migrate
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Models\User.php
+        protected $fillable = [
+            'name', 'email', 'password','google_id'
+        ];
+        => Nhớ thêm vào Model 
 Google API : https://console.cloud.google.com/apis/credentials/oauthclient/1079359168744-ehm0qmfgmg4imvbk33n7d97t69sfjb87.apps.googleusercontent.com
     Authorized JavaScript origins : http://127.0.0.1:8000
     Authorized redirect URIs : http://localhost:8000/authorized/google/callback  <====
@@ -244,6 +249,76 @@ C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\routes\web.php
         Route::get('authorized/google', [CustomAuthController::class, 'redirectToGoogle']); <=== đây là link ở blade nhằm gọi đến hàm trong Controller 
         Route::get('authorized/google/callback', [CustomAuthController::class, 'handleGoogleCallback']);
 
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Controllers\CustomAuthController.php (update cho phù hợp)
+        // User đăng kí  
+        public function customRegistration(Request $request)
+        {  
+            $request->validate([
+                'name' => 'required',
+                'email' => 'required|email',
+                'password' => 'required|min:6',
+            ]);
+
+            $findEmail = User::where('email', $request->email)->first();
+            if($findEmail){
+                if($findEmail['password']){
+                    Toastr::error('Tài khoản đã tồn tại');
+                    return redirect("register");
+                }
+                else { // chưa có password mà có email thì là tài khoản của google => cập nhật password 
+                    $findEmail->update(['password' => Hash::make($request['password'])]);
+                }
+            }
+            else {
+                $data = $request->all();
+                $user = User::create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'password' => Hash::make($data['password'])
+                ]);
+                Toastr::success('Đăng kí tài khoản thành công !');
+                $this->sendMail($user);
+            }
+            return redirect("dashboard")->withSuccess('You have signed-in');
+        }
+        // Login by Google 
+        public function redirectToGoogle()
+        {
+            return Socialite::driver('google')->redirect();
+        }
+        public function handleGoogleCallback()
+        {
+            try {
+                $user = Socialite::driver('google')->user();
+                $finduser = User::where('google_id', $user->id)->first();
+                if($finduser){ // nếu đã tồn tại thì cho vào dashboard 
+                    Auth::login($finduser);
+                    return redirect()->intended('dashboard');
+                }else{// nếu chưa thì tạo account 
+                    $findEmail = User::where('email', $user->email)->first();
+                    if($findEmail){ // đã có trong hệ thống thì update id 
+                        $findEmail->update(['google_id' => $user->id]);
+                        Auth::login($findEmail); // xác nhận đã login 
+                        Toastr::success('Đăng nhập thành công');
+                    }
+                    else { // chưa có thì tạo tài khoản 
+                        $newUser = User::create([
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'google_id'=> $user->id,    
+                            // 'password' => encrypt('123456vanmanh') // mật khẩu mặt định 
+                        ]);
+                        Auth::login($newUser); // xác nhận đã login 
+                        Toastr::success('Đăng kí thành công');
+                        $this->sendMail($newUser);
+                    }
+                    return redirect()->intended('dashboard');
+                }            
+            } catch (Exception $e) {
+                dd($e->getMessage());
+            }
+        }
+
 => XONG , sau đó xử lý gì ở Controller cho hợp lý thì xử lý .  
 ================================================================
     login bằng google 
@@ -258,4 +333,202 @@ C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\routes\web.php
             + không có password => đây là tài khoản đăng nhập trước đó bằng google 
                 => lấy password người dùng nhập bổ sung vào  
         + mail chưa tồn tại => đăng kí như bình thường 
+================================================================
+Login by Github cũng tương tự : Điều quan trọng của một social network là  
+    + Đăng kí 
+        + URL trang web : http://localhost:8000
+        + URL callback  : http://localhost:8000/authorized/google/callback (ghi cái gì cũng được)
+            + link này sẽ xuất hiện 2 chỗ nữa là 
+                + file service.php => đăng kí cho hệ thống 
+                + web.php => gọi hàm xử lý 
 
+    + Sau khi đăng kí thì hệ thống bất kì sẽ trả về cho ta 2 thứ quan trọng 
+        + Client ID : b1b1f3e7c5765cfd3510
+        + Client secrets : 48474a596ae636bba226c9b0f704221f2fcc3bb7 
+        => cộng với URL callback ta đã đăng kí 
+        => 3 thông số này sẽ cho vào file service.php 
+
+Các bước để đăng nhập bằng github (ngắn gọn) 
+    + https://github.com/settings/applications/new
+        Application name : Blog Laravel
+        Homepage URL : http://localhost:8000
+        Authorization callback URL : http://localhost:8000/authorized/github/callback
+    
+    + https://github.com/settings/applications/2246649
+        Client ID : b1b1f3e7c5765cfd3510
+        => Click 'Generate a new client secret' để tạo Client secrets : 48474a596ae636bba226c9b0f704221f2fcc3bb7 (copy lại ngay)
+    
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>composer require laravel/socialite (nếu trước đó đã chạy lệnh này rồi thì thôi)
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>composer require socialiteproviders/github
+
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\config\services.php
+        'github' => [
+            'client_id' => 'b1b1f3e7c5765cfd3510',
+            'client_secret' => '48474a596ae636bba226c9b0f704221f2fcc3bb7',
+            'redirect' => 'http://localhost:8000/authorized/github/callback',
+        ],
+
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\routes\web.php
+        Route::get('authorized/github', [CustomAuthController::class, 'redirectToGithub']);
+        Route::get('authorized/github/callback', [CustomAuthController::class, 'handleGithubCallback']);
+        
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\resources\views\auth\login.blade.php
+        <div style="display: flex;justify-content: center" class="flex items-center justify-end mt-2 mb-4">
+            <a href="{{ url('authorized/github') }}">
+                <img style="width: 200px" src="https://help.dropsource.com/wp-content/uploads/sites/4/2017/02/gh-login-button.png" style="margin-left: 3em;">
+            </a>
+        </div>
+
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Controllers\CustomAuthController.php
+        // Login by Github 
+        public function redirectToGithub()
+        {
+            return Socialite::driver('github')->redirect();
+        }
+        public function handleGithubCallback()
+        {
+            try {
+                $user = Socialite::driver('github')->user();
+                $finduser = User::where('github_id', $user->id)->first();
+                if($finduser){ // nếu đã tồn tại thì cho vào dashboard 
+                    Auth::login($finduser);
+                    return redirect()->intended('dashboard');
+                }else{// nếu chưa thì tạo account 
+                    $findEmail = User::where('email', $user->email)->first();
+                    if($findEmail){ // đã có trong hệ thống thì update id 
+                        $findEmail->update(['github_id' => $user->id]);
+                        Auth::login($findEmail); // xác nhận đã login 
+                        Toastr::success('Đăng nhập thành công');
+                    }
+                    else { // chưa có thì tạo tài khoản 
+                        $newUser = User::create([
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'github_id'=> $user->id,    
+                            // 'password' => encrypt('123456vanmanh') // mật khẩu mặt định 
+                        ]);
+                        Auth::login($newUser); // xác nhận đã login 
+                        Toastr::success('Đăng kí thành công');
+                        $this->sendMail($newUser);
+                    }
+                    return redirect()->intended('dashboard');
+                }            
+            } catch (Exception $e) {
+                dd($e->getMessage());
+            }
+        }
+
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan make:migration add_github_id_to_users_table
+        public function up()
+        {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('github_id')->nullable();
+            });
+        }
+
+        public function down()
+        {
+            Schema::table('users', function (Blueprint $table) {            
+                $table->dropColumn('github_id');
+            });
+        }
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan migrate
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Models\User.php
+        protected $fillable = [
+            'name', 'email', 'password','google_id','github_id'
+        ];
+
+    ==> XONG . Về cơ bản thì như vậy là ok rồi . Cứ làm giống như Login bằng Google là được . 
+
+================================================================
+    login bằng google 
+        + nếu google_id này đã có trong db => cho login vào  
+        + nếu google_id này chưa có trong db 
+            + nếu email này chưa có trong db => tạo tài khoản mới (password để trống)
+            + nếu email này đã có trong db => chỉ cần bổ sung thêm google id 
+    
+    login bằng github
+        + nếu github_id này đã có trong db => cho login vào  
+        + nếu github_id này chưa có trong db 
+            + nếu email này chưa có trong db => tạo tài khoản mới (password để trống)
+            + nếu email này đã có trong db => chỉ cần bổ sung thêm github id 
+
+    user register 
+        + mail đã tồn tại 
+            + có password => không cho đăng kí nữa 
+            + không có password => đây là tài khoản đăng nhập trước đó bằng mạng xã hội (google hoặc github,...)
+                => lấy password người dùng nhập bổ sung vào  
+        + mail chưa tồn tại => đăng kí như bình thường 
+
+VỀ CỞ BẢN HOÀN TOÀN GIỐNG NHAU , KHÔNG ĐỔI GÌ CẢ , COPY ra và thay vào thôi . 
+CODE CỦA GITHUB hoàn toàn giống GOOLE => Áp dụng cho các mạng xã hội khác 
+
++ Về xử lý maill unique => tưởng phức tạp , tưởng thêm một mạng xã hội thì lại phải xem lại cách xử lý sao maill 
+    thì phải unique còn password khi đăng kí thì phải điền vào còn khi đăng nhập bằng mạng xã hội thì không điền 
+    => thì mấy cái này do mình code ok nên khi thêm một mạng xã hội mới ví dụ github thì chỉ cần cop ra paste vào thôi 
+================================================================
+dd($user) Ta sẽ được : 
+    Laravel\Socialite\Two\User {#417 ▼
+        +token: "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"
+        +refreshToken: null
+        +expiresIn: null
+        +approvedScopes: array:1 [▶]
+        +id: 81563451
+        +nickname: "NguyenVanManh-AI"
+        +name: "Nguyễn Văn Mạnh"
+        +email: "nguyenvanmanh2001it1@gmail.com"
+        +avatar: "https://avatars.githubusercontent.com/u/81563451?v=4"
+        +user: array:32 [▼
+        "login" => "NguyenVanManh-AI"
+        "id" => 81563451
+        "node_id" => "MDQ6VXNlcjgxNTYzNDUx"
+        "avatar_url" => "https://avatars.githubusercontent.com/u/81563451?v=4"
+        "gravatar_id" => ""
+        "url" => "https://api.github.com/users/NguyenVanManh-AI"
+        "html_url" => "https://github.com/NguyenVanManh-AI"
+        "followers_url" => "https://api.github.com/users/NguyenVanManh-AI/followers"
+        "following_url" => "https://api.github.com/users/NguyenVanManh-AI/following{/other_user}"
+        "gists_url" => "https://api.github.com/users/NguyenVanManh-AI/gists{/gist_id}"
+        "starred_url" => "https://api.github.com/users/NguyenVanManh-AI/starred{/owner}{/repo}"
+        "subscriptions_url" => "https://api.github.com/users/NguyenVanManh-AI/subscriptions"
+        "organizations_url" => "https://api.github.com/users/NguyenVanManh-AI/orgs"
+        "repos_url" => "https://api.github.com/users/NguyenVanManh-AI/repos"
+        "events_url" => "https://api.github.com/users/NguyenVanManh-AI/events{/privacy}"
+        "received_events_url" => "https://api.github.com/users/NguyenVanManh-AI/received_events"
+        "type" => "User"
+        "site_admin" => false
+        "name" => "Nguyễn Văn Mạnh"
+        "company" => "DUT-BACH KHOA DA NANG"
+        "blog" => ""
+        "location" => "DA NANG"
+        "email" => "nguyenvanmanh2001it1@gmail.com"
+        "hireable" => null
+        "bio" => null
+        "twitter_username" => "NguyenVanManhft"
+        "public_repos" => 48
+        "public_gists" => 13
+        "followers" => 17
+        "following" => 35
+        "created_at" => "2021-03-29T10:44:36Z"
+        "updated_at" => "2023-06-24T19:58:33Z"
+        ]
+        +attributes: array:5 [▼
+        "id" => 81563451
+        "nickname" => "NguyenVanManh-AI"
+        "name" => "Nguyễn Văn Mạnh"
+        "email" => "nguyenvanmanh2001it1@gmail.com"
+        "avatar" => "https://avatars.githubusercontent.com/u/81563451?v=4"
+        ]
+    }
+    
+
+================================================================
+Build App Chat Realtime 
+    + https://www.youtube.com/watch?v=ER-wOKXrbuw&ab_channel=CodewithRoss 
+    + https://dashboard.pusher.com/apps/1627143/getting_started
+        => chủ yếu là dùng thư viện , nó không liên quan gì database hết 
+        => nếu build trong laravel thì ok , nhưng cần realtime khi có api gửi tới thì không làm được . 
+        => Thêm nữa là lỡ cái này nó tính phí . 
+        + Cái này có một cái lợi đó là chỉ cần chọn frontend và backend là nó tự sinh code cho mình luôn, khá là ok 
+
+    + Đầu từ làm Socket luôn . 
