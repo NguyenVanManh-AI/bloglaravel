@@ -11,7 +11,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', [CustomAuthController::class, 'dashboard']);
     Route::get('signout', [CustomAuthController::class, 'signOut'])->name('signout');
 });
+
 Route::get('authorized/google', [CustomAuthController::class, 'redirectToGoogle']);
 Route::get('authorized/google/callback', [CustomAuthController::class, 'handleGoogleCallback']);
+
 Route::get('authorized/github', [CustomAuthController::class, 'redirectToGithub']);
 Route::get('authorized/github/callback', [CustomAuthController::class, 'handleGithubCallback']);
+
+// Route::get('authorized/twitter', [CustomAuthController::class, 'redirectToTwitter']);
+// Route::get('authorized/twitter/callback', [CustomAuthController::class, 'handleTwitterCallback']);

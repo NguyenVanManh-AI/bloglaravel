@@ -17,7 +17,8 @@
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.0",
         "socialiteproviders/github": "^4.1",
-        "socialiteproviders/google": "^4.1"
+        "socialiteproviders/google": "^4.1",
+        "socialiteproviders/twitter": "^4.1"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",

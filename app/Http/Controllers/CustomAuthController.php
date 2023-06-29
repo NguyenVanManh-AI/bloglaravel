@@ -189,6 +189,22 @@ class CustomAuthController extends Controller
             dd($e->getMessage());
         }
     }
+
+    // Login by Twitter 
+    // public function redirectToTwitter()
+    // {
+    //     return Socialite::driver('twitter')->redirect();
+    // }
+    // public function handleTwitterCallback()
+    // {
+    //     try {
+    //         $user = Socialite::driver('twitter')->user();
+    //         dd($user);
+                
+    //     } catch (Exception $e) {
+    //         dd($e->getMessage());
+    //     }
+    // }
 }
 // ================================================================
 /*

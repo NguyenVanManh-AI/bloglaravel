@@ -39,6 +39,11 @@ return [
         'client_secret' => '48474a596ae636bba226c9b0f704221f2fcc3bb7',
         'redirect' => 'http://localhost:8000/authorized/github/callback',
     ],
+    // 'twitter' => [
+    //     'client_id' => 'WDBZLUZseG5RWm1Ncy1yeXBHb1A6MtpjaQ',
+    //     'client_secret' => 'htd2MP-sAFFWTWmFI1GE5AeHxiQT_2ZZ4YqcNi-xPphNuhJz2t',
+    //     'redirect' => 'http://localhost:8000/authorized/twitter/callback',
+    // ],
 
 
 ];
