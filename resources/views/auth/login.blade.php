@@ -40,7 +40,7 @@
                             <img style="width: 200px" src="https://onymos.com/wp-content/uploads/2020/10/google-signin-button.png" style="margin-left: 3em;">
                         </a>
                     </div>
-                    <div style="display: flex;justify-content: center" class="flex items-center justify-end mt-2 mb-2">
+                    <div style="display: flex;justify-content: center" class="flex items-center justify-end mt-2 mb-4">
                         <a href="{{ url('authorized/github') }}">
                             <img style="width: 200px" src="https://help.dropsource.com/wp-content/uploads/sites/4/2017/02/gh-login-button.png" style="margin-left: 3em;">
                         </a>
