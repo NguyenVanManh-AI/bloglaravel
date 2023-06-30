@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomAuthController;
 
+// Auth 
 Route::get('login', [CustomAuthController::class, 'index'])->name('login');
 Route::post('custom-login', [CustomAuthController::class, 'customLogin'])->name('login.custom'); 
 Route::get('registration', [CustomAuthController::class, 'registration'])->name('register-user');
@@ -12,6 +13,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('signout', [CustomAuthController::class, 'signOut'])->name('signout');
 });
 
+// OAuth2 
 Route::get('authorized/google', [CustomAuthController::class, 'redirectToGoogle']);
 Route::get('authorized/google/callback', [CustomAuthController::class, 'handleGoogleCallback']);
 
