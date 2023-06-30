@@ -3,12 +3,13 @@ B2. Sau đó tối ưu cho code ngắn lại
 
 
 Features 
-+ Mở rộng tính năng cmt 
-+ Chat real time - socket 
++ Chat real time - socket - pusher  
 + Mutil auth (hệ thống đăng nhập 2 bảng : user và admin => @guest và @admin => đăng kí @admin trong Kernel.php)
 + OAth2 Google , Facebook (OK)
 + Send Mail (OK)
 + Deploy Laravel to infinity hoặc Railway 
++ Blog
++ Mở rộng tính năng cmt 
 
 
 
@@ -537,3 +538,124 @@ Build App Chat Realtime
 
 ================================================================
 https://socialiteproviders.com/about/#provider-issues
+
+php artisan make:model Articles -c -v 
+
+
+================================================================
+Có một cái cực kì hay mà mình đã làm rồi đó là => Đang thiếu , chưa use một class nào đó 
+thì chỉ cần viết class đó ra rồi khi từ cuối cùng => đường dẫn class hiện lên 
+ta chỉ cần 'enter' một cái là laravel tự thêm class đó cho ta 
+CHÚ Ý : Nhưng chú ý là giả sử có nhiều class cùng tên thì nên xem kĩ trước khi enter tránh use nhầm class không cần
+Ví dụ : 
+    + $user = Auth::user();
+    => Auth => enter => tự động có use Illuminate\Support\Facades\Auth; 
+================================================================
+Route . Có 2 cách 
+Cách 1 : Không đặt name cho route 
+    Route::prefix('article')->controller(ArticlesController::class)->group(function () {
+        Route::middleware(['auth'])->group(function () {
+            Route::post('/add', 'addArticle');
+        });
+    });
+
+    thì action trong form sẽ là 
+    <form method="POST" action="/article/add"> 
+
+Cách 2 : Đặt name cho route 
+    Route::prefix('article')->controller(ArticlesController::class)->name('article.')->group(function () {
+        Route::middleware(['auth'])->group(function () {
+            Route::post('/add', 'addArticle')->name('add');
+        });
+    });
+
+    thì action trong form sẽ là 
+    <form method="POST" action="{{ route('article.add') }}"> 
+
+=> nói chung cách nào cũng được , nhưng thấy cách đặt name ok hơn 
+================================================================
+Add Article 
+    C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan make:request RequestArticle
+    C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Requests\RequestArticle.php
+        <?php
+
+            namespace App\Http\Requests;
+
+            use Brian2694\Toastr\Facades\Toastr;
+            use Illuminate\Foundation\Http\FormRequest;
+
+            class RequestArticle extends FormRequest
+            {
+                public function authorize()
+                {
+                    return true;
+                }
+
+                public function rules()
+                {
+                    return [
+                        'title' => 'required|min:6',
+                        'content' => 'required|min:6',
+                    ];
+                }
+
+                public function withValidator($validator)
+                {
+                    if ($validator->fails()) {
+                        foreach ($validator->errors()->all() as $error) {
+                            Toastr::error($error);
+                        }
+                    }
+                }
+            }
+
+    C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Controllers\ArticlesController.php
+        public function addArticle(RequestArticle $request){
+            $request->validated();
+            $data = $request->all();
+            $user = Auth::user();
+            $article = Articles::create([
+                'id_user' => $user->id,
+                'title' => $data['title'],
+                'content' => $data['content'],
+            ]);
+            if ($article) {
+                Toastr::success('Thêm bài viết thành công!');
+                return redirect()->route('article.add'); 
+            } else {
+                Toastr::error('Thêm bài viết thất bại!');
+                return redirect()->back()->withInput(); // Quay trở lại trang trước đó và giữ lại dữ liệu đã nhập
+            }
+        }
+
+Note : 
+    + Nếu muốn in ra được các lỗi thì ta phải tự tạo request cho nó (bằng câu lệnh trên)
+        + nếu dùng request như thông thường như thế này 
+            public function addArticle(Request $request){
+                $request->validated([
+                    'title' => 'required|min:6',
+                    'content' => 'required|min:6',
+                ]);
+
+                dd(1);  <== thì nếu khi gặp lỗi , dòng này sẽ không được in ra 
+                nó kiểm tra nếu có lỗi trong rule thì sẽ chuyển về lại ngay , chứ không thực hiện tiếp
+                
+    + Chính vì thế phải tạo request riêng cho nó => và muốn in ra các lỗi trong rule thì code vào hàm 
+        withValidator như đoạn code trên 
+
+    + Nhắt lại : validated([...]) là một hàm có sẵn của laravel 
+
+Nói thêm : 
+    + Ta có thể tối ưu hơn nữa , in ra lỗi tùy ý bằng cách custom lại error 
+        + Ví dụ rule : require sẽ in ra gì , min:6 sẽ in ra gì ,... 
+        => cái này sẽ code lại sau 
+
+    + return redirect()->route('article.add');  // chuyển đến trang có name route là 'article.add' (chính là của article. + add)
+    + return redirect()->back()->withInput();   // Quay trở lại trang trước đó và giữ lại dữ liệu đã nhập
+    + bên html thì dùng old() để hiển thị lại các giá trị cũ (nếu form lỗi)
+    <input value="{{ old('title') }}" name="title" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+
+
+================================================================
+
+
