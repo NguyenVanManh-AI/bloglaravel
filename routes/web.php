@@ -29,12 +29,12 @@ Route::prefix('article')->controller(ArticleController::class)->name('article.')
     Route::middleware(['auth'])->group(function () {
         Route::get('/', 'all');
         Route::get('/add', 'showAdd');
-        Route::get('/detail/{id}', 'showDetail');
+        Route::get('/detail/{id}', 'showDetail')->name('show');
         Route::get('/edit/{id}', 'showEdit')->name('show-edit');
         Route::get('/my', 'myArticle');
 
         Route::post('/add', 'addArticle')->name('add');
         Route::post('/update', 'updateArticle')->name('update');
-        Route::post('/delete', 'deleteArticle');
+        Route::post('/delete/{id}', 'deleteArticle')->name('delete');
     });
 });

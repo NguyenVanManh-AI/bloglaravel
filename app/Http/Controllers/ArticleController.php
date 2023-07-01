@@ -22,8 +22,9 @@ class ArticleController extends Controller
         return view('article.Index',['articles' => $articles]);
     }
 
-    public function showDetail(Request $request){
-        return view('article.DetailArticle');
+    public function showDetail(Request $request,$id){
+        $article = Article::find($id);
+        return view('article.DetailArticle',['article' => $article]);
     }
 
     public function showAdd(Request $request){
@@ -63,7 +64,8 @@ class ArticleController extends Controller
         $request->validated();
         $data = $request->all();
         $user = Auth::user();
-        $article = Article::where('id',$request->id)->first();
+        // $article = Article::where('id',$request->id)->first();
+        $article = Article::findOrFail($request->id); // tìm không thấy bài viết thì về lại 
         if($user->id != $article->id_user){ // input bị hidden đi rồi nhưng đề phòng client hack 
             // => đôi id bài viết => lên lại server thì query ra nếu khác thì không cho đổi 
             Toastr::error('Bạn không có quyền chỉnh sửa bài viết này !');
@@ -82,8 +84,23 @@ class ArticleController extends Controller
         }
     }
 
-    public function deleteArticle(Request $request){
-            
+    public function deleteArticle(Request $request, $id)
+    {
+        // Kiểm tra xem người dùng có quyền xóa bài viết hay không
+        // Ví dụ: Chỉ cho phép người tạo bài viết hoặc người có quyền quản trị xóa
+        $article = Article::findOrFail($id); // tìm không thấy bài viết thì về lại 
+        $user = Auth::user();
+        $article = Article::where('id',$request->id)->first();
+        if($user->id == $article->id_user){
+        // if ($request->user()->can('delete', $article)) {
+            // Xóa bài viết
+            $article->delete();
+            Toastr::success('Xóa bài viết thành công !');
+            return redirect()->back();
+        } else {
+            Toastr::error('Bạn không có quyền xóa bài viết !');
+            return redirect()->back();
+        }
     }
 
 }

@@ -846,3 +846,41 @@ hoặc giá trị mặc định từ bài viết nếu không có giá trị cũ
 để người dùng tiếp tục chỉnh sửa, chỉ khi lỗi mà người dùng không chỉnh sửa nữa mà request lại thì nó vẫn cứ theo quy tắc như trên 
 là hiển thị các giá trị được truyền về . 
 ================================================================
+Delete Article 
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\resources\views\article\Index.blade.php
+    <td>
+        {{-- $article->id là truyền vào route 1 giá trị , còn ['id' => $article->id] là truyền vào nhiều giá trị --}}
+        <form action="{{ route('article.delete', $article->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this article?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+        </form>
+    </td>
+    
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Controllers\ArticleController.php
+    Dưới đây là mã code cho hàm deleteArticle trong controller:
+    public function deleteArticle(Request $request, $id)
+    {
+        // Kiểm tra xem người dùng có quyền xóa bài viết hay không
+        // Ví dụ: Chỉ cho phép người tạo bài viết hoặc người có quyền quản trị xóa
+        $article = Article::findOrFail($id); // tìm không thấy bài viết thì về lại 
+        $user = Auth::user();
+        $article = Article::where('id',$request->id)->first();
+        if($user->id == $article->id_user){
+        // if ($request->user()->can('delete', $article)) {
+            // Xóa bài viết
+            $article->delete();
+            Toastr::success('Xóa bài viết thành công !');
+            return redirect()->back();
+        } else {
+            Toastr::error('Bạn không có quyền xóa bài viết !');
+            return redirect()->back();
+        }
+    }
+    Trong ví dụ trên, chúng ta sử dụng findOrFail($id) để tìm bài viết dựa trên id. Sau đó, chúng ta kiểm tra xem người dùng 
+    có quyền xóa bài viết hay không, ví dụ: chỉ cho phép người tạo bài viết hoặc người có quyền quản trị xóa. Nếu người dùng có quyền, 
+    chúng ta xóa bài viết và chuyển hướng về trang trước với thông báo thành công. Nếu người dùng không có quyền, chúng ta chuyển hướng 
+    về trang trước với thông báo lỗi.
+
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\routes\web.php
+    Route::post('/delete/{id}', 'deleteArticle')->name('delete');

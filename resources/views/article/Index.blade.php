@@ -22,16 +22,30 @@
                 <td>{{ $article->title }}</td>
                 <td>{{ $article->content }}</td>
                 <td>{{ $article->name }}</td>
-                <td><button type="button" class="btn btn-primary"><i class="fa-solid fa-eye"></i> View</button></td>
-                @if($article->id_user == auth()->user()->id)
                 <td>
+                    <a href="{{ route('article.show', ['id' => $article->id]) }}" class="btn btn-primary">
+                        <i class="fa-solid fa-eye"></i> View
+                    </a>
+                </td>
+                {{-- <td><button type="button" class="btn btn-primary"><i class="fa-solid fa-eye"></i> View</button></td> --}}
+                <td>
+                    @if($article->id_user == auth()->user()->id)
                     <a href="{{ route('article.show-edit', ['id' => $article->id]) }}" class="btn btn-primary">
                         <i class="fa-solid fa-pen-to-square"></i> Edit
                     </a>
+                    @endif 
                 </td>
                 {{-- <td><button type="button" class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i> Edit</button></td> --}}
-                <td><button type="button" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button></td>
-                @endif 
+                {{-- <td><button type="button" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button></td> --}}
+                <td>
+                    {{-- $article->id là truyền vào route 1 giá trị , còn ['id' => $article->id] là truyền vào nhiều giá trị --}}
+                    @if($article->id_user == auth()->user()->id)
+                    <form method="POST" action="{{ route('article.delete', $article->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this article?');">
+                        @csrf
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </form>
+                    @endif 
+                </td>
             </tr>
             @endforeach
         </tbody>
