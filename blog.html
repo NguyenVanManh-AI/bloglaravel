@@ -657,5 +657,192 @@ Nói thêm :
 
 
 ================================================================
+Pagination in Laravel 8 
+    + https://dev.to/codeanddeploy/laravel-8-pagination-example-using-bootstrap-5-243h
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Providers\AppServiceProvider.php
+            <?php
+                namespace App\Providers;
+                
+                use Illuminate\Support\ServiceProvider;
+                use Illuminate\Pagination\Paginator;   <==== 
+                
+                class AppServiceProvider extends ServiceProvider
+                {
+                    public function register()
+                    {
+                    }
+                    public function boot()
+                    {
+                        Paginator::useBootstrap();    <==== 
+                    }
+                }
+    
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Controllers\ArticleController.php
+        public function myArticle(Request $request){
+            $user = Auth::user();
+            $articles = Article::where('id_user', $user->id)->paginate(2);
+            return view('article.MyArticle',['articles' => $articles]);
+        }
+
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\resources\views\article\MyArticle.blade.php
+        + Có 2 cách , cách nào cũng được : 
+        {{ $articles->links() }}
+        {!! $articles->links() !!}
+
+    + Nói thêm : 
+        + npm i jquery
+        + npm install bootstrap@4.0.0
+
+        + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\resources\views\dashboard.blade.php
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+            <link rel="stylesheet" href="http://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css"> 
+
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>     
 
 
+    + http://localhost:8000/article/my?page=2
+        Illuminate\Pagination\LengthAwarePaginator {#1398 ▼
+            #total: 5
+            #lastPage: 1
+            #items: Illuminate\Database\Eloquent\Collection {#1421 ▶}
+            #perPage: 6
+            #currentPage: 2
+            #path: "http://localhost:8000/article/my"
+            #query: []
+            #fragment: null
+            #pageName: "page"
+            +onEachSide: 3
+            #options: array:2 [▶]
+        }
+        + Thông số của Pagination trong laravel 
+            + perPage : số dòng trên mỗi trang (lấy ra bao nhiêu cái trên mỗi trang)
+            + currentPage : trang hiện tại mà mình đang đứng 
+                + Khi click vào http://localhost:8000/article/my thì nó hiện ra 
+                => khi click vào các trang thì url sẽ tự động thay đổi theo , ví dụ click vào 2 
+                thì ta được : http://localhost:8000/article/my?page=2 
+                => click vào 1,2,3... thì cũng tương tự 
+            + total : tổng số result mà backend lấy ra được 
+            + lastPage : trang trước đó 
+
+        + Từ 2 thông số perPage, currentPage ta có thể lấy ra được index hay số thứ tự 
+        bằng cách : 
+            @foreach ($articles as $index => $article)
+            <tr>
+                <td>{{ $articles->perPage()*($articles->currentPage() -1) + $index + 1 }}</td>
+                <td>{{ $article->title }}</td>
+                <td>{{ $article->content }}</td>
+                <td>{{ $article->content }}</td>
+                <td><button type="button" class="btn btn-primary">Primary</button></td>
+                <td><button type="button" class="btn btn-danger">Danger</button></td>
+            </tr>
+            @endforeach
+        
+        + Thay vì @foreach ($articles as $article) thì để có thêm số thứ tự ta phải : @foreach ($articles as $index => $article)
+
+================================================================
+Eloquent Laravel 8 . As name 
+
+$articles = Article::join('users', 'articles.id_user', '=', 'users.id')
+    // ->select('articles.*', 'users.name') // nếu không có as thì mặc định nó sẽ là name 
+    ->select('articles.*', 'users.name as author') // nếu as thì để đặc tên lại cho nó  
+    ->paginate(2);
+    dd($articles);
+
+#attributes: array:7 [▼
+    "id" => 2
+    "id_user" => 1
+    "title" => "ascsacasc"
+    "content" => "ascascsac"
+    "created_at" => "2023-06-30 16:09:49"
+    "updated_at" => "2023-06-30 16:09:49"
+    "name" => "Nguyen Van Manh"    <=== không đặt tên 
+]
+
+#attributes: array:7 [▼
+    "id" => 2
+    "id_user" => 1
+    "title" => "ascsacasc"
+    "content" => "ascascsac"
+    "created_at" => "2023-06-30 16:09:49"
+    "updated_at" => "2023-06-30 16:09:49"
+    "author" => "Nguyen Van Manh"    <=== đặt lại tên  
+]
+
+LƯU Ý : CÁC TRƯỜNG CÓ TÊN TRÙNG NHAU . Ví dụ 
+$articles = Article::join('users', 'articles.id_user', '=', 'users.id')
+    ->select('articles.*', 'users.id') 
+    ->paginate(2);
+    dd($articles);
+
+=> Ta thấy article cũng có id mà user cũng có trường id => trường id của user sẽ đè lên trường id của 
+    article . Lúc này sẽ không có 7 thuộc tính nữa mà sẽ là 6 thuộc tính thôi 
+        #attributes: array:6 [▼
+            "id" => 1
+            "id_user" => 1
+            "title" => "ascsacasc"
+            "content" => "ascascsac"
+            "created_at" => "2023-06-30 16:09:49"
+            "updated_at" => "2023-06-30 16:09:49"
+        ]
+=> ĐÂY LÀ LÝ DO MÀ CẦN PHẢI DÙNG AS ĐỂ ĐẶT LẠI NAME . NẾU KHÔNG TRÙNG THÌ THÍCH THÌ ĐẶT AS KHÔNG THÌ KHÔNG CŨNG ĐƯỢC . 
+================================================================
+Để lấy thông tin của người đăng nhập ngay trên blade trong Laravel, bạn có thể sử dụng biến toàn cục auth(). 
+Dưới đây là một số ví dụ về cách lấy thông tin người đăng nhập:
+    Lấy thông tin người đăng nhập hiện tại (Instance của Model User):
+        $user = auth()->user();
+    Lấy ID của người đăng nhập:
+        $userID = auth()->id();
+    Kiểm tra xem người dùng có đăng nhập hay không:
+        if (auth()->check()) {
+            // Người dùng đã đăng nhập
+        }
+    Kiểm tra xem người dùng có phải là một vai trò cụ thể hay không:
+        if (auth()->user()->hasRole('admin')) {
+            // Người dùng có vai trò admin
+        }
+    Trong các ví dụ trên, auth() là một trợ giúp để truy cập vào đối tượng Illuminate\Contracts\Auth\Guard, và thông qua đối tượng này, bạn có thể truy cập vào thông tin của người đăng nhập hiện tại.
+    Sau khi lấy thông tin của người đăng nhập, bạn có thể sử dụng nó để hiển thị thông tin tùy ý trong blade. Ví dụ:
+        <p>Welcome, {{ auth()->user()->name }}</p>
+        <p>Email: {{ auth()->user()->email }}</p>
+    Lưu ý rằng để sử dụng auth(), bạn cần chắc chắn rằng đã kích hoạt tính năng xác thực trong ứng dụng Laravel của bạn và đã đăng nhập thành công.
+
++ C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\resources\views\article\Index.blade.php
+@foreach ($articles as $index => $article)
+<tr>
+    <td>{{ $articles->perPage()*($articles->currentPage() -1) + $index + 1 }}</td>
+    <td>{{ $article->title }}</td>
+    <td>{{ $article->content }}</td>
+    <td>{{ $article->name }}</td>
+    <td><button type="button" class="btn btn-primary"><i class="fa-solid fa-eye"></i> View</button></td>
+    @if($article->id_user == auth()->user()->id)
+    <td><button type="button" class="btn btn-primary"><i class="fa-solid fa-pen-to-square"></i> Edit</button></td>
+    <td><button type="button" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button></td>
+    @endif 
+</tr>
+@endforeach
+================================================================
+Để hiển thị giá trị được truyền về từ controller và vẫn sử dụng old để hiển thị giá trị cũ, 
+bạn có thể sửa code blade như sau:
+<form method="POST" action="{{ route('article.add') }}">
+    @csrf
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input value="{{ old('title', $article->title) }}" name="title" type="text" class="form-control" id="title" aria-describedby="titleHelp" placeholder="Title">
+    </div>
+    <div class="form-group">
+        <label for="content">Content</label>
+        <textarea name="content" class="form-control" id="content" rows="5" placeholder="Content">{{ old('content', $article->content) }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>
+Trong ví dụ trên, chúng ta sử dụng old('field', $value) để hiển thị giá trị cũ của trường và nếu không có giá trị cũ, 
+nó sẽ lấy giá trị từ biến $article được truyền từ controller. Điều này cho phép bạn hiển thị giá trị trước đó nếu có, 
+hoặc giá trị mặc định từ bài viết nếu không có giá trị cũ.
+
+=> Đảm bảo khi mới vào thì hiển thị giá trị được truyền về , còn khi update mà lỗi thì giữ nguyên các giá trị cũ cho người dùng 
+để người dùng tiếp tục chỉnh sửa, chỉ khi lỗi mà người dùng không chỉnh sửa nữa mà request lại thì nó vẫn cứ theo quy tắc như trên 
+là hiển thị các giá trị được truyền về . 
+================================================================

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ArticlesController;
+use App\Http\Controllers\ArticleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomAuthController;
 
@@ -25,15 +25,16 @@ Route::get('authorized/github/callback', [CustomAuthController::class, 'handleGi
 // Route::get('authorized/twitter/callback', [CustomAuthController::class, 'handleTwitterCallback']);
 
 // Article  
-Route::prefix('article')->controller(ArticlesController::class)->name('article.')->group(function () {
+Route::prefix('article')->controller(ArticleController::class)->name('article.')->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/', 'all');
         Route::get('/add', 'showAdd');
         Route::get('/detail/{id}', 'showDetail');
-        Route::get('/edit/{id}', 'showEdit');
+        Route::get('/edit/{id}', 'showEdit')->name('show-edit');
+        Route::get('/my', 'myArticle');
 
         Route::post('/add', 'addArticle')->name('add');
-        Route::post('/update', 'updateArticle');
+        Route::post('/update', 'updateArticle')->name('update');
         Route::post('/delete', 'deleteArticle');
     });
 });

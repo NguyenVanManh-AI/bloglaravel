@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="col-6 mx-auto">
+    <div class="alert alert-success text-center" role="alert">
+        Add Article 
+    </div>
     {{-- <form method="POST" action="/article/add"> nếu không đặt name cho route --}} 
     <form method="POST" action="{{ route('article.add') }}">
         @csrf
