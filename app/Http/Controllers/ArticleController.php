@@ -103,4 +103,49 @@ class ArticleController extends Controller
         }
     }
 
+    // ajax search 
+    public function ajaxSearch(Request $request)
+    {
+        $articles = Article::join('users', 'articles.id_user', '=', 'users.id')
+            ->select('articles.*', 'users.name')
+            ->where('articles.title', 'like', '%' . $request->search . '%')
+            ->orWhere('articles.content', 'like', '%' . $request->search . '%')
+            ->orderBy('articles.id', 'desc')
+            ->paginate(3);
+        $render_html = '';
+        foreach ($articles as $index => $article) {
+            $render_html .= '<tr>
+                <td>' . ($articles->perPage() * ($articles->currentPage() - 1) + $index + 1) . '</td>
+                <td>' . $article->title . '</td>
+                <td>' . $article->content . '</td>
+                <td>' . $article->name . '</td>
+                <td>
+                    <a href="' . route('article.show', ['id' => $article->id]) . '" class="btn btn-primary">
+                        <i class="fa-solid fa-eye"></i> View
+                    </a>
+                </td>
+                <td>';
+            if ($article->id_user == auth()->user()->id) {
+                $render_html .= '<a href="' . route('article.show-edit', ['id' => $article->id]) . '" class="btn btn-primary">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </a>';
+            }
+            $render_html .= '</td>
+                <td>';
+            if ($article->id_user == auth()->user()->id) {
+                $render_html .= '<form method="POST" action="' . route('article.delete', $article->id) . '" onsubmit="return confirm(\'Are you sure you want to delete this article?\');">
+                        ' . csrf_field() . '
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </form>';
+            }
+            $render_html .= '</td>
+            </tr>';
+        }
+        $pagination = $articles->links()->toHtml();
+        return response()->json([
+            'render_html' => $render_html,
+            'pagination' => $pagination,
+        ]);
+    }
+
 }

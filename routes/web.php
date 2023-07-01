@@ -36,5 +36,6 @@ Route::prefix('article')->controller(ArticleController::class)->name('article.')
         Route::post('/add', 'addArticle')->name('add');
         Route::post('/update', 'updateArticle')->name('update');
         Route::post('/delete/{id}', 'deleteArticle')->name('delete');
+        Route::get('/ajax-search', 'ajaxSearch')->name('search');
     });
 });

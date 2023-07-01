@@ -884,3 +884,34 @@ C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Controllers\ArticleCont
 
 C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\routes\web.php
     Route::post('/delete/{id}', 'deleteArticle')->name('delete');
+
+================================================================
+Các cách để thêm style , js vào file blade.php
+    => Nói chung là có rất nhiều cách : 
+    
+    + Tham khảo : C:\Users\ADMIN\Downloads\ProLaravel\ProjectLaravel2.html
+    + 
+
+
+    vậy @push khác gì so với @section('styles')
+    @push và @section('styles') đều được sử dụng để định nghĩa một phần CSS cho trang. Tuy nhiên, có một số khác biệt giữa hai cách sử dụng này:
+    @section('styles'): Được sử dụng để định nghĩa một phần CSS trong trang hiện tại. Nếu bạn chỉ muốn định nghĩa một phần CSS trong một trang cụ thể, thì @section('styles') là cách tiếp cận đơn giản và trực tiếp.
+    @push: Được sử dụng để thêm nội dung CSS vào một stack (ngăn xếp) CSS được xác định trước đó. Điều này cho phép bạn thêm nhiều đoạn CSS từ nhiều trang hoặc thành phần khác nhau vào cùng một stack. Sau đó, bạn có thể hiển thị tất cả các đoạn CSS đó bằng cách sử dụng @stack trong trang gốc (layout). Điều này giúp quản lý và tổ chức mã CSS một cách linh hoạt và tái sử dụng.
+    Ví dụ:
+    Trang gốc (layout.blade.php):
+    <!-- ...Phần còn lại của layout... -->
+    @stack('styles')
+    
+    Trang blade.php:
+    @extends('layout')
+    
+    @section('content')
+    <div class="col-10 mx-auto">
+        {{-- ...Nội dung hiện tại... --}}
+    </div>
+    @endsection
+    
+    @push('styles')
+    <link rel="stylesheet" href="{{ asset('article/style.css') }}">
+    @endpush
+    Lợi ích của việc sử dụng @push và @stack là bạn có thể quản lý nhiều đoạn CSS từ nhiều trang và thành phần khác nhau và tổ chức chúng vào một ngăn xếp duy nhất để hiển thị trên trang gốc. Điều này giúp tăng tính module và tái sử dụng của mã CSS trong ứng dụng Laravel của bạn.
