@@ -37,5 +37,8 @@ Route::prefix('article')->controller(ArticleController::class)->name('article.')
         Route::post('/update', 'updateArticle')->name('update');
         Route::post('/delete/{id}', 'deleteArticle')->name('delete');
         Route::get('/ajax-search', 'ajaxSearch')->name('search');
+        Route::get('/ajax-search-my', 'ajaxSearchMy')->name('search-my');
+        Route::get('/test', 'test')->name('test');
+        Route::get('/test222', 'test222')->name('test222');
     });
 });

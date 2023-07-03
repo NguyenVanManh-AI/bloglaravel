@@ -890,8 +890,6 @@ Các cách để thêm style , js vào file blade.php
     => Nói chung là có rất nhiều cách : 
     
     + Tham khảo : C:\Users\ADMIN\Downloads\ProLaravel\ProjectLaravel2.html
-    + 
-
 
     vậy @push khác gì so với @section('styles')
     @push và @section('styles') đều được sử dụng để định nghĩa một phần CSS cho trang. Tuy nhiên, có một số khác biệt giữa hai cách sử dụng này:
@@ -915,3 +913,566 @@ Các cách để thêm style , js vào file blade.php
     <link rel="stylesheet" href="{{ asset('article/style.css') }}">
     @endpush
     Lợi ích của việc sử dụng @push và @stack là bạn có thể quản lý nhiều đoạn CSS từ nhiều trang và thành phần khác nhau và tổ chức chúng vào một ngăn xếp duy nhất để hiển thị trên trang gốc. Điều này giúp tăng tính module và tái sử dụng của mã CSS trong ứng dụng Laravel của bạn.
+================================================================
+So sánh giữa Vuejs và Laravel Balde 
+Vuejs 
+    + File component cha use các file component con 
+    + File cha hay file con đều load dữ liệu lên được 
+    + Route-view
+    + Không load lại trang (dùng view-route)
+    + Ví dụ : 
+        + Route-view 
+            + /article/add
+            + /article/edit 
+        
+        + Đi đến /article => component cha hoạt động => load toàn bộ dữ liệu của component cha + show html của component cha 
+        + Đi đến /article/add => load toàn bộ dữ liệu của component cha , con add và html của cha article và con add 
+        + Tương tự nếu đi đến /article/edit 
+
+
+Laravel 
+    + File blade con extends lại file cha . Ví dụ file cha chứa head và footer , import các link css , js hết 
+    thì các file con add.blade.php , edit.blade.php chỉ chứa phần content còn lại các phần viền khác thì 
+    extends('article') (kế thừa lại của cha) . 
+    + Nó vẫn giống với route-view của Vuejs là 
+    + Load lại trang , mỗi route đều phải load lại trang . Không load lại trang với điều kiện là dùng Ajax . 
+        + Nhưng liên quan đến url thì cũng load lại trang .  
+    + Ví dụ : đến article/add thì cho return view về file add.blade.php và trả về result mà add.blade.php cần 
+        Tương tự đến với article/edit . 
+    + Tuy nhiên : Điểm khác ở đây có nghĩa là 
+        + Vuejs 
+            + article/add/... 
+            => /article sẽ được lấy dữ liệu của nó (result1) 
+            => /add sẽ được lấy thêm dữ liệu (result2)
+            => /... (resultn)
+            => cuối cùng khi truy cập vào article/add/... thì sẽ có được result1,... resultn cùng hiển thị trên trang web 
+            mà chỉ cần phần route nào làm việc của phần route đấy . Nó chỉ xây dựng route để kiếm chỗ để component vào thôi 
+
+        + Laravel 
+            + Đối với Laravel thì khác . Vì mỗi route tương ứng sẽ gọi một hàm , có thể là 1 trong các loại sau 
+                + return trực tiếp về view 
+                + gọi đến 1 hàm trong controller rồi cũng return trực tiếp về view .
+                nghĩa là 1 route dù có bao nhiêu phần CŨNG ĐƯỢC XỬ LÝ 1 LẦN DUY NHẤT 
+                + Chính vì thế mà giả sử  
+                    + article/add/..
+                        + article => cần result1 để hiển thị 
+                        + add => cần result2 để hiển thị 
+                        + /... cần resultn để hiển thị
+
+                    + THÌ file web.php 
+                        Route::get('/article/add/test', 'TestController')->name('test');
+                        hàm TestController() trong controller phải lấy được cả 3 result (reuslt1,result2,resultn) 
+                        rồi sau đó return về view rồi hiển thị ra 
+                        => Lấy dữ liệu 1 lần duy nhất . 
+
+        + Chính vì thế mà trên thực tế 
+            + Mình thấy dự án cũ gần như toàn bộ chỉ extends 2 cấp 
+                + Cấp cha : Master.blade.php chứa các phần định nghĩa css, js như head, footer 
+                + Cấp con : @extends('Admin.Layouts.Master') 
+
+            + Cũng có thể extend đến n cấp trong 2 trường hợp sau 
+                + TH1 : Cấp 1 -> n-1 là những cấp chỉ dùng để định nghĩa css, js như đã nói hoặc 
+                nếu có thì các file này chỉ dùng các biến php thì cũng dùng các giá trị có sẵn 
+                như $auth , $error , $succsess (những biến luôn có trong hệ thống)
+
+                + TH2 : Dữ liệu cấp 1 -> cấp n-1 , các file này yêu cầu có dữ liệu lấy từ database 
+                => các dữ liệu này phải được lấy từ hàm controller của route trỏ đến (file thứ n)
+                (như ví dụ đã nói ở trên) . 
+                    Vấn đề xảy ra khi giả xử có nhiều file a,b,c,... đều extend các file từ (1 - n-1)
+                    => phải code lấy dữ liệu nhiều lần trong cùng 1 hàm controller 
+
+                => Cách giải quyết là . LẤY DỮ LIỆU TỪ FILE 1 -> n-1 ĐƯỢC CODE TRONG CÁC HÀM . 
+                SAU ĐÓ TA CHỈ VIỆC GỌI LẠI HÀM là xong (kiến thức cơ bản). 
+
+                Ví dụ : 
+                    route : .../1/2/3/4/a => controller af()
+                    route : .../1/2/3/4/b => controller bf()
+                    route : .../1/2/3/4/c => controller cf()
+
+                    controller 
+                    1f(){
+                        lấy dữ liệu result1 
+                        return result1 
+                    }
+
+                    2f(){
+                        lấy dữ liệu result2
+                        return result2
+                    }
+
+                    3f(){
+                        lấy dữ liệu result3 
+                        return result3
+                    }
+
+                    4f(){
+                        lấy dữ liệu result4 
+                        return result4
+                    }
+
+                    <!--  -->
+                    af(){
+                        1f()
+                        2f()
+                        3f()
+                        4f()
+                        return view a
+                    }
+
+                    bf(){
+                        1f()
+                        2f()
+                        3f()
+                        4f()
+                        return view b
+                    }
+                    
+                    cf(){
+                        1f()
+                        2f()
+                        3f()
+                        4f()
+                        return view c
+                    }
+
+                Nói chung đây là cách giải quyết mà đơn giản nhất , chỉ sử dụng kiến thức cơ bản 
+                đó là dùng lại hàm . 
+                => Với các này có thể giải quyết kế thừa nhiều cấp . 
+                    
+    + Laravel so với Vuejs ngoài khác ở đặc điểm chỉ lấy dữ liệu 1 lần do chỉ return về 1 cái gì đó đối với 1 route 
+        khác với Vuejs nó phần route thành các đoạn , ứng với mỗi đoạn thì thực thi các component tương  ứng với đoạn đó 
+    + Thì chúng vẫn có điểm chung đó là route nào thì hiển thị html của route đấy 
+
+        + article/add 
+        + article/edit 
+
+        + Vuejs 
+            + component article use add, edit 
+        + Laravel 
+            + add.blade.php, edit.blade.php extends article.blade.php 
+
+        + Tất cả đều 
+            + vào article/add thì hiển thị add 
+            + vào article/edit  thì hiển thị edit  
+        
+        => LÀM ĐƯỢC NHIỀU THỨ . (Tab load content, right bar, phân trang,... )
+
+
+    + Ví dụ : 
+        C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\resources\views\organize\test.blade.php
+            @extends('article.Index')
+            @section('content-test')
+            <div>
+                HEHEH 
+            </div>
+            @endsection
+
+            + test extends 'article.Index' , trong 'article.Index' có @yield('content-test')
+                Và article.Index @extends('dashboard') , trong dashboard có @yield('content-article') 
+            + article.Index cần có biến $articles để hiển thị dữ liệu 
+
+
+        + Nếu code ntn thì không được : 
+            public function test(Request $request){
+                return view('organize.test');
+            }
+
+        + Phải là : 
+            public function test(Request $request){
+                $articles = Article::join('users', 'articles.id_user', '=', 'users.id')
+                ->select('articles.*', 'users.name')
+                ->orderBy('articles.id', 'desc')
+                ->paginate(2);
+                return view('organize.test',['articles' => $articles]);
+            }
+
+            + Tối ưu lại để dùng lại hàm bằng cách : 
+            public function getArticle(){
+                $articles = Article::join('users', 'articles.id_user', '=', 'users.id')
+                ->select('articles.*', 'users.name')
+                ->orderBy('articles.id', 'desc')
+                ->paginate(2);
+                return $articles;
+            }
+
+            public function test(Request $request){
+                $articles = $this->getArticle();
+                return view('organize.test',['articles' => $articles]);
+            }
+
+TUY NHIÊN MÌNH SẼ TIẾP TỤC TÌM HIỂU XEM CÓ CÁCH THAY ĐỔI , CÁCH CODE NÀO KHÁC ĐỂ OK HƠN KHÔNG 
+(KHỎE NHƯ LÀ BÊN VUEJS)
+================================================================
+Layout Blade : https://laravel.com/docs/8.x/blade#blade-directives
+    + @push @stack @section @yield @extends @include @parent @show và tổ chức code js css  
+    + Tham khảo : 
+        C:\Users\ADMIN\Downloads\izisoft\p12nhadatexpress\resources\views\Admin\Layouts\Master.blade.php
+        C:\Users\ADMIN\Downloads\izisoft\p12nhadatexpress\resources\views\Admin\MailBox\MasterMail.blade.php
+        C:\Users\ADMIN\Downloads\izisoft\p12nhadatexpress\resources\views\user\layouts\master.blade.php
+        C:\Users\ADMIN\Downloads\izisoft\p12nhadatexpress\resources\views\Home\Layouts\Master.blade.php
+        C:\Users\ADMIN\Downloads\izisoft\p12nhadatexpress\resources\views\user\persolnal\master.blade.php
+    
+    + Trong project thực tế , mình thấy các file css được import vào ở file master . 
+        + Đều này có nghĩa là toàn bộ phần extends master đó sẽ chịu ảnh hưởng bởi file này 
+            => nếu đặt class hoặc id trùng nhau thì dễ gây bug css (style không như ý)
+        + Nên mình nghĩ vừa đặt hết vào master nhưng cũng vừa đặt ở từng file blade.php nhỏ 
+        vì đặt ở các file này thì chỉ nó chịu ảnh hưởng và các file con của nó chịu ảnh hưởng . 
+        Còn đặt ở file master thì lớn quá, sợ các file khác cũng bị ảnh hưởng . 
+
+    ================================================================
+    + @extends và @yield 
+        + Dùng nhiều 
+        + Kế thừa một file cha . Và các vấn đề khi kế thừa (thiếu result này kia thì mình đã nói ở trên)
+        + Ví dụ : 
+            + file cha : dashboard.blade.php 
+                ...
+                @yield('content-artilce')   
+                ...
+
+            + file con : artilce.blade.php 
+                @extends('dashboard')
+                @section('content-artilce')
+                    ...
+                @endsection 
+
+        + Có thể kế thừa n cấp : 
+            + file cha : dashboard.blade.php 
+                ...
+                @yield('content-artilce')   
+                ...
+
+            + file con : artilce.blade.php 
+                @extends('dashboard')
+                @section('content-artilce')
+                    ...
+                    @yield('content-show')   
+                    ...
+                @endsection 
+
+            + file cháu : show.blade.php 
+                @extends('artilce')
+                @section('content-show')
+                    ...
+                @endsection 
+
+    ================================================================
+    + @include
+        + Dùng nhiều 
+        + Nhúng một đoạn code của file khác vào file hiện tại . 
+        + Ví dụ : 
+            header.blade.php : 
+                <header>
+                    <h1>Welcome to My Website</h1>
+                </header>
+
+            home.blade.php : 
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>My Website</title>
+                </head>
+                <body>
+                    @include('header')
+                    <main>
+                        <h2>Home Page</h2>
+                        <p>This is the home page of my website.</p>
+                    </main>
+                </body>
+                </html>
+
+        + Truyền biến về khi nhúng . Giống với prop trong Vuejs 
+            + Ở controller lấy ra 1 cục result thật to 
+            + file cha 
+                @include('view.name', ['status' => $complete])
+                    => file cha include (dùng) file con (view.name) và truyền vào biến cho nó 
+                    (cái này cũng giống như prop trong vuejs)
+                    => với cách làm này ta có thể gọi controller cho file cha , lấy toàn bộ result cần 
+                    file ông ----- file cha ----- file con 
+                    + bằng cách truyền biến về thì file ông sẽ có các result để hiển thị 
+                    + còn file cha thì tất nhiên cũng có , còn file con thì được file cha truyền vào thông qua câu lệnh như trên 
+                    hoặc có thể cũng được truyền trực tiếp từ controller về , ví dụ như thế này : 
+                    return view('file_cha',['result_ong' => $result_ong,'result_cha' => $result_cha,'result_con' => $result_con]);
+
+    ================================================================
+    + @parent | @section('') @show | @section('') @endsection
+        + @section('') @show : Đánh dấu đoạn code file cha , dùng cho file cha 
+        + @section('') @endsection : Đánh dấu đoạn code file con , dùng cho file con 
+        + @parent : Dùng cho file con , để hiển thị phần nội dung của file cha . 
+            + VỊ TRÍ ĐẶT LÀ TRONG CẶP @section('') @endsection TƯƠNG ỨNG CỦA FILE CON . 
+
+        + Tóm lại chức năng là đè một phần nội dung của file cha và có thể hiển thị thêm phần nội dung của file cha 
+        + Có thể có nhiều cặp @section('') @endsection trong một file , không vấn đề gì cả . 
+
+        + Ví dụ : 
+            + Ở tất cả các ví dụ dưới thì @yield('content-test') và @section('content-test') thực hiện chức năng 
+            hiển thị nội dung của file con , như đã nói trong 1 file có nhiều cặp @section('') @endsection không 
+            vấ đề gì cả , cái nào thực hiện chức năng của cái đấy . Mình chỉ thêm vào cho sinh động thôi . 
+
+            + TH1 : 
+                views\article\Index.blade.php : 
+                    @extends('dashboard')
+                    @section('content')
+                        @yield('content-test') 
+                        @section('content-vanmanh')
+                            <h1>NAME</h1>
+                        @show
+                    @endsection
+
+                views\organize\test.blade.php
+                    @extends('article.Index')
+                    @section('content-test')
+                        <div> TEST </div>
+                    @endsection
+
+                + Kết quả : 
+                    TEST
+                    NAME
+
+                + Nhận xét : 
+                    + Trong file con không có @section('content-vanmanh') nên không ghi đè gì cả nên nội dung mặc định của 
+                        @section('content-vanmanh') trong file cha vẫn được hiển thị 
+                    + file cha @yield('content-test') trước nên tất nhiên 'TEST' phải nằm trước 'NAME' 
+
+            + TH2 : 
+                views\article\Index.blade.php : 
+                    @extends('dashboard')
+                    @section('content')
+                        @yield('content-test') 
+                        @section('content-vanmanh')
+                            <h1>NAME</h1>
+                        @show
+                    @endsection
+
+                views\organize\test.blade.php
+                    @extends('article.Index')
+                    @section('content-test')
+                        <div> TEST </div>
+                    @endsection
+                    @section('content-vanmanh')
+                        <div> NGUYENVANMANH </div>
+                        <div> PRO VIP </div>
+                    @endsection
+
+                + Kết quả : 
+                    TEST
+                    NGUYENVANMANH
+                    PRO VIP
+                    
+                + Nhận xét : 
+                    + Trong file con có @section('content-vanmanh') nên ghi đè nội dung mặc định 
+                        của @section('content-vanmanh') trong file cha 
+
+            + TH3 : 
+                views\article\Index.blade.php : 
+                    @extends('dashboard')
+                    @section('content')
+                        @yield('content-test') 
+                        @section('content-vanmanh')
+                            <h1>NAME</h1>
+                        @show
+                    @endsection
+
+                views\organize\test.blade.php
+                    @extends('article.Index')
+                    @section('content-test')
+                        <div> TEST </div>
+                    @endsection
+                    @section('content-vanmanh')
+                        <div> NGUYENVANMANH </div>
+                            @parent 
+                        <div> PRO VIP </div>
+                    @endsection
+
+                + Kết quả : 
+                    TEST
+                    NGUYENVANMANH
+                    NAME
+                    PRO VIP
+                    
+                + Nhận xét : 
+                    + Trong file con có @section('content-vanmanh') nên ghi đè nội dung mặc định 
+                        của @section('content-vanmanh') trong file cha 
+                    + Trong file con có sử dụng @parent TRONG CẶP @section('content-vanmanh') CỦA FILE CON 
+                        => NÊN HIỂN THỊ THÊM PHẦN NỘI DUNG NÀY CỦA FILE CHA  
+                        @section('content-vanmanh') <===
+                            <div> NGUYENVANMANH </div>
+                                @parent <===  
+                            <div> PRO VIP </div>
+                        @endsection <===
+
+        + Có nơi nói 2 cặp : @section('') @show và @section('') @endsection là như nhau . 
+            => Nhưng cứ dùng theo quy tắt như mình đã nói là được rồi . 
+
+    ================================================================
+    @push @stack và nhúng link, script trực tiếp vào file . Có 3 cách như sau :  
+        + @push @stack (đặt ở vị trí tùy ý)
+        + Nhúng link, script trực tiếp vào file (chú ý nên nhúng link trong cặp thẻ @section)
+        + Thêm trực tiếp đoạn code css,js vào file (chú ý nên code trong cặp thẻ @section)
+
+        Quy tắc : 
+            + Tất cả 3 cách trên đều tuân theo những quy tắc sau : Ví dụ file Cha có 2 file con là Con1 và Con2  
+            + js,css của file cha ảnh hưởng đến tất cả các file con (Con1, Con2) đều chịu ảnh hưởng 
+                (dù là dùng @push @stack hay nhúng link hay code trực tiếp)
+            + js,css của file Con1 hoàn toàn không liên quan đến file Con2 (dù là dùng @push @stack hay nhúng link hay code trực tiếp)
+
+            + Các file js,css thường ở folder public . Thêm đường dẫn thì dùng asset('') 
+                Ví dụ :
+                    <link rel="stylesheet" href="{{ asset('css/article/all.css') }}">
+                        + Ta có file public/css/article/all.css
+                    <script src="{{ asset('js/article/search-all.js') }}"></script> 
+                        + Ta có file public/js/article/search-all.js
+
+
+        + TH1 : Thêm trực tiếp đoạn code css,js vào file (chú ý nên code trong cặp thẻ @section)
+            + Đơn giản thì ta chỉ việc code vào thôi . Khi code thuần ta cũng đã biết là có thể bỏ đoạn code css,js 
+                vào bất cứ đâu trong body . Thì bây giờ nó vẫn thế thôi . Bản chất nó vẫn vậy vì nó @extends('dashboard') rồi . 
+
+            @extends('dashboard')
+            @section('content')
+
+                ... code ... 
+
+                <style>
+                    * {
+                        border: 1px solid pink;
+                    }
+                </style>
+                <script>
+                    console.log('Ngay tại Index');
+                </script> 
+            @endsection
+        
+
+        + TH2 : Nhúng link, script trực tiếp vào file (chú ý nên nhúng link trong cặp thẻ @section)
+            @extends('dashboard')
+            @section('content')
+
+                ... code ... 
+
+                <script src="{{ asset('js/article/search-all.js') }}"></script>
+                <link rel="stylesheet" href="{{ asset('css/article/all.css') }}">
+            @endsection
+        
+        + TH3 : @push @stack 
+            + Cách dùng : 
+                + @stack thường để ở file master . Tùy vào code css hay js mà để @stack ở head hay body 
+                + @push để tùy ý ở file con . Chứa code css, js . 
+                    + Trong @push có thể : Code trực tiếp vào đó hoặc Nhúng link 
+
+            + Ta đã có @extends() @section @yield @include @parent @show để chủ yếu là quản lý code html 
+            + Bây giờ ta dùng @push @stack để quản lý code css,js 
+            + Có thời gian thì thử test xem dùng @section để quản lý code css,js và @push @stack để quản lý code html 
+
+            + Ví dụ : 
+                + views\dashboard.blade.php : ĐÂY LÀ FILE MASTER (chứa head và body của trang web)
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+
+                        ...
+
+                        @stack('styles-test') <=== 
+
+                    </head>
+                    <body>
+                        
+                        ...
+
+                        @yield('content')
+                        @stack('scripts-test') <=== 
+
+                    </body>
+                    </html> 
+        
+                + views\organize\test.blade.php : ĐÂY LÀ FILE CẦN @PUSH ĐOẠN CODE . KHÔNG QUAN TÂM @extends qua bao nhiêu cấp . 
+                    @extends('article.Index')
+                    @section('content-test')
+                    @endsection
+                    @push('styles-test') <=== 
+                        <style>
+                            * {
+                                background-color: green;
+                            }
+                        </style> 
+                    @endpush
+
+                    @push('scripts-test') <=== 
+                        <script>
+                            console.log('Hello');
+                            var vanmanh = window.document.getElementById('vanmanh');
+                            vanmanh.onclick = function(){
+                                vanmanh.style.display = 'none';
+                            }
+                        </script> 
+                    @endpush
+
+            + Ví dụ : 
+                + views\dashboard.blade.php : ĐÂY LÀ FILE MASTER (chứa head và body của trang web)
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+
+                        ...
+
+                        @stack('styles-test') <=== 
+
+                    </head>
+                    <body>
+                        
+                        ...
+
+                        @yield('content')
+                        @stack('scripts-test') <=== 
+
+                    </body>
+                    </html> 
+        
+                + views\organize\test.blade.php : ĐÂY LÀ FILE CẦN @PUSH ĐOẠN CODE . KHÔNG QUAN TÂM @extends qua bao nhiêu cấp . 
+                    @extends('article.Index')
+                    @section('content-test')
+                    @endsection
+                    @push('styles-test') <=== 
+                        <link rel="stylesheet" href="{{ asset('css/article/styles-test.css') }}">
+                    @endpush
+
+                    @push('scripts-test') <=== 
+                        <script src="{{ asset('js/article/scripts-test.js') }}"></script>
+                    @endpush
+
+
+        + Ví dụ : 
+            views\dashboard.blade.php : 
+                <!DOCTYPE html>
+                <html>
+                <head>
+
+                    ...
+
+                    @stack('styles-test') <===
+                    @stack('styles-test222') <===
+                    @stack('styles-index') <===
+
+                </head>
+                <body>
+                    
+                    ...
+
+                    @yield('content')
+                    @stack('scripts-test') <===
+                    @stack('scripts-test222') <===
+                    @stack('scripts-index') <===
+
+                </body>
+                </html>
+
+            => FILE NÀO CẦN @PUSH CODE VÀO THÌ CỨ THÊM VÀO THÔI . KHÔNG QUAN TÂM GÌ CẢ . 
+
+================================================================
+
+
+
+
+
+
+
+

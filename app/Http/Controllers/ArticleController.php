@@ -18,7 +18,7 @@ class ArticleController extends Controller
         // ->select('articles.*', 'users.id') // giả sử muốn lấy ra id của users thì phải đặt lại name cho nó 
         // vì cả article và users đều có id 
         ->orderBy('articles.id', 'desc') // Sắp xếp giảm dần theo article.id (mới nhất lên đầu)
-        ->paginate(3);
+        ->paginate(2);
         return view('article.Index',['articles' => $articles]);
     }
 
@@ -38,7 +38,8 @@ class ArticleController extends Controller
 
     public function myArticle(Request $request){
         $user = Auth::user();
-        $articles = Article::where('id_user', $user->id)->paginate(2);
+        $articles = Article::where('id_user', $user->id)
+        ->orderBy('id', 'desc')->paginate(2);
         return view('article.MyArticle',['articles' => $articles]);
     }
 
@@ -111,7 +112,7 @@ class ArticleController extends Controller
             ->where('articles.title', 'like', '%' . $request->search . '%')
             ->orWhere('articles.content', 'like', '%' . $request->search . '%')
             ->orderBy('articles.id', 'desc')
-            ->paginate(3);
+            ->paginate(2);
         $render_html = '';
         foreach ($articles as $index => $article) {
             $render_html .= '<tr>
@@ -148,4 +149,65 @@ class ArticleController extends Controller
         ]);
     }
 
+    public function ajaxSearchMy(Request $request)
+    {
+        $user = Auth::user();
+        $articles = Article::where('id_user', $user->id)
+        ->where(function ($query) use ($request) {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                ->orWhere('content', 'like', '%' . $request->search . '%');
+        })
+        ->orderBy('id', 'desc')
+        ->paginate(2);
+    
+        $render_html = '';
+        foreach ($articles as $index => $article) {
+            $render_html .= '<tr>
+                <td>' . ($articles->perPage() * ($articles->currentPage() - 1) + $index + 1) . '</td>
+                <td>' . $article->title . '</td>
+                <td>' . $article->content . '</td>
+                <td>
+                    <a href="' . route('article.show', ['id' => $article->id]) . '" class="btn btn-primary">
+                        <i class="fa-solid fa-eye"></i> View
+                    </a>
+                </td>
+                <td>';
+                $render_html .= '<a href="' . route('article.show-edit', ['id' => $article->id]) . '" class="btn btn-primary">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </a>';
+            $render_html .= '</td>
+                <td>';
+                $render_html .= '<form method="POST" action="' . route('article.delete', $article->id) . '" onsubmit="return confirm(\'Are you sure you want to delete this article?\');">
+                        ' . csrf_field() . '
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </form>';
+            $render_html .= '</td>
+            </tr>';
+        }
+        $pagination = $articles->links()->toHtml();
+        return response()->json([
+            'render_html' => $render_html,
+            'pagination' => $pagination,
+        ]);
+    }
+
+    public function test(Request $request){
+        $articles = Article::join('users', 'articles.id_user', '=', 'users.id')
+        ->select('articles.*', 'users.name')
+        ->orderBy('articles.id', 'desc')
+        ->paginate(2);
+        return view('organize.test',['articles' => $articles]);
+        // return view('organize.test');
+    }
+
+    public function test222(Request $request){
+        $articles = Article::join('users', 'articles.id_user', '=', 'users.id')
+        ->select('articles.*', 'users.name')
+        ->orderBy('articles.id', 'desc')
+        ->paginate(2);
+        return view('organize.test222',['articles' => $articles]);
+        // return view('organize.test222');
+    }
+
+    
 }

@@ -5,6 +5,13 @@
     <div class="alert alert-success text-center" role="alert">
         My Article 
     </div>
+    <div class="form-group row">
+        <label for="staticEmail" class="col-sm-1 col-form-label">Search</label>
+        {{-- <div class="col-sm-11"><input value="" name="title" type="text" class="form-control" id="search" aria-describedby="titleHelp" placeholder="Search"></div> --}}
+        <div class="col-sm-11">
+            <input value="" name="title" type="text" class="form-control" id="search" aria-describedby="titleHelp" placeholder="Search">
+        </div>
+    </div>
     <table class="table">
         <thead class="thead-light">
           <tr>
@@ -15,7 +22,7 @@
             <th scope="col" colspan="3">Features</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="body-article">
             @foreach ($articles as $index => $article)
             <tr>
                 <td>{{ $articles->perPage()*($articles->currentPage() -1) + $index + 1 }}</td>
@@ -41,10 +48,14 @@
             </tr>
             @endforeach
         </tbody>
-      </table>
-    {{ $articles->links() }}
+    </table>
+    <div id="pagination_container">
+        {{ $articles->links() }}
+    </div>
 </div>
 {{-- cách nào cũng được --}}
 {{-- {{ $articles->links() }} --}}
 {{-- {!! $articles->links() !!} --}}
+<script src="{{ asset('js/article/search-my.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('css/article/my.css') }}">
 @endsection
