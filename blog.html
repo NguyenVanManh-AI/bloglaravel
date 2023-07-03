@@ -1468,11 +1468,184 @@ Layout Blade : https://laravel.com/docs/8.x/blade#blade-directives
             => FILE NÀO CẦN @PUSH CODE VÀO THÌ CỨ THÊM VÀO THÔI . KHÔNG QUAN TÂM GÌ CẢ . 
 
 ================================================================
+Blog 
+background-image: url("{{asset('Blog/image/login.jfif')}}");
+
+
+================================================================
+Users : 
+    + id 
+    + email 
+    + password
+    + name 
+    + google_id 
+    + github_id 
+
+    + username (user + google_id)(user + github_id)  
+        + khi login bằng google thì dùng cách đó để điền username 
+        + còn nếu register thì lấy username ghi đè lên username đã được thêm khi đăng kí bằng google hay github 
+        + tất nhiên khi register thì check nếu đã tồn tại username đó rồi (không phải của email này)
+            thì không được đăng kí .  
+
+    + avatar   (gooogle.avatar)(github.avatar) (có thể null nếu login bằng google)
+    + gender (có thể null nếu login bằng google)
+
+    + Khi hiển thị ảnh ra thì check nếu avatar null thì dùng ảnh của hệ thống . 
+
+    @if($user.avatar==null){
+        url = asset('...')
+        (nếu không có thì lấy ảnh mặt định của hệ thống)
+    }
+    else {
+        url = https://...
+    } 
+
+    + Khi register mà trùng email thì 
+        + lấy username 
+        + lấy gender điền vào 
+        + lấy avatar điền vào 
+        + lấy password điền vào 
 
 
 
+Google : 
+Laravel\Socialite\Two\User {#444 ▼
+    +token: "ya29.a0AbVbY6Nf6aO2u2vfgTp236PwA1FJMpjnicIyDAn1KJcnped9Lv2568Mws0iEmDo30LjEMfzgF8IQimsvvEmmm-jVnlVDsyWOqdvP002EBpPCK1KVHp5NyF9wfeeQUzrWSYR0IgCqUGmDUKT_Atrzt99h2 ▶"
+    +refreshToken: null
+    +expiresIn: 3598
+    +approvedScopes: array:3 [▶]
+    +id: "109722727162244891904"
+    +nickname: null
+    +name: "Mạnh Nguyễn Văn"
+    +email: "nguyenvanmanh2001it1@gmail.com"
+    +avatar: "https://lh3.googleusercontent.com/a/AAcHTteoFwSmeDt4cJE__GhXEw0CzW6QtPvNLtYVwuEVRp3YeA=s96-c"
+    +user: array:11 [▼
+      "sub" => "109722727162244891904"
+      "name" => "Mạnh Nguyễn Văn"
+      "given_name" => "Mạnh"
+      "family_name" => "Nguyễn Văn"
+      "picture" => "https://lh3.googleusercontent.com/a/AAcHTteoFwSmeDt4cJE__GhXEw0CzW6QtPvNLtYVwuEVRp3YeA=s96-c"
+      "email" => "nguyenvanmanh2001it1@gmail.com"
+      "email_verified" => true
+      "locale" => "vi"
+      "id" => "109722727162244891904"
+      "verified_email" => true
+      "link" => null
+    ]
+    +attributes: array:6 [▼
+      "id" => "109722727162244891904"
+      "nickname" => null
+      "name" => "Mạnh Nguyễn Văn"
+      "email" => "nguyenvanmanh2001it1@gmail.com"
+      "avatar" => "https://lh3.googleusercontent.com/a/AAcHTteoFwSmeDt4cJE__GhXEw0CzW6QtPvNLtYVwuEVRp3YeA=s96-c"
+      "avatar_original" => "https://lh3.googleusercontent.com/a/AAcHTteoFwSmeDt4cJE__GhXEw0CzW6QtPvNLtYVwuEVRp3YeA=s96-c"
+    ]
+  }
+
+Github : 
+Laravel\Socialite\Two\User {#431 ▼
+    +token: "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"
+    +refreshToken: null
+    +expiresIn: null
+    +approvedScopes: array:1 [▶]
+    +id: 81563451
+    +nickname: "NguyenVanManh-AI"
+    +name: "Nguyễn Văn Mạnh"
+    +email: "nguyenvanmanh2001it1@gmail.com"
+    +avatar: "https://avatars.githubusercontent.com/u/81563451?v=4"
+    +user: array:32 [▼
+      "login" => "NguyenVanManh-AI"
+      "id" => 81563451
+      "node_id" => "MDQ6VXNlcjgxNTYzNDUx"
+      "avatar_url" => "https://avatars.githubusercontent.com/u/81563451?v=4"
+      "gravatar_id" => ""
+      "url" => "https://api.github.com/users/NguyenVanManh-AI"
+      "html_url" => "https://github.com/NguyenVanManh-AI"
+      "followers_url" => "https://api.github.com/users/NguyenVanManh-AI/followers"
+      "following_url" => "https://api.github.com/users/NguyenVanManh-AI/following{/other_user}"
+      "gists_url" => "https://api.github.com/users/NguyenVanManh-AI/gists{/gist_id}"
+      "starred_url" => "https://api.github.com/users/NguyenVanManh-AI/starred{/owner}{/repo}"
+      "subscriptions_url" => "https://api.github.com/users/NguyenVanManh-AI/subscriptions"
+      "organizations_url" => "https://api.github.com/users/NguyenVanManh-AI/orgs"
+      "repos_url" => "https://api.github.com/users/NguyenVanManh-AI/repos"
+      "events_url" => "https://api.github.com/users/NguyenVanManh-AI/events{/privacy}"
+      "received_events_url" => "https://api.github.com/users/NguyenVanManh-AI/received_events"
+      "type" => "User"
+      "site_admin" => false
+      "name" => "Nguyễn Văn Mạnh"
+      "company" => "DUT-BACH KHOA DA NANG"
+      "blog" => ""
+      "location" => "DA NANG"
+      "email" => "nguyenvanmanh2001it1@gmail.com"
+      "hireable" => null
+      "bio" => null
+      "twitter_username" => "NguyenVanManhft"
+      "public_repos" => 48
+      "public_gists" => 13
+      "followers" => 17
+      "following" => 35
+      "created_at" => "2021-03-29T10:44:36Z"
+      "updated_at" => "2023-06-24T19:58:33Z"
+    ]
+    +attributes: array:5 [▼
+      "id" => 81563451
+      "nickname" => "NguyenVanManh-AI"
+      "name" => "Nguyễn Văn Mạnh"
+      "email" => "nguyenvanmanh2001it1@gmail.com"
+      "avatar" => "https://avatars.githubusercontent.com/u/81563451?v=4"
+    ]
+  }
 
 
+================================================================
+Upload file 
+    + <form method="POST" action="{{ route('register.user')}}" enctype="multipart/form-data">
+        => nhớ thêm : enctype="multipart/form-data"
+    + php artisan storage:link
+    + config\filesystems.php
+        'public' => [
+            'driver' => 'local',
+            // 'root' => storage_path('app/public'),
+            'root' => public_path('storage'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
+    + $data = $request->all(); // lấy toàn bộ form input được gửi lên 
+    + Lưu file  
+        if ($request->hasFile('avatar')) {
+            $image = $request->file('avatar');
+            $filename = time() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public/Blog/image/avatars', $filename);
+        }
+    + Ảnh : http://localhost:8000/storage/Blog/image/avatars/1688417972.jpg
+    + Nhớ tất cả các form đều phải thêm @csrf 
 
+Tham khảo : https://stackoverflow.com/questions/48510683/laravel-how-to-revert-local-storage-symlink-and-refresh 
+- Fix lỗi không upload được ảnh vào folder public/storage 
+=> không vì gì cả , không vì code . Sau một khoảng thời gian thì ta nên 
+xóa folder : E:\E\Laravel Vuejs\SourceCodePBL4\SourceCodePBL4\API-Laravel\public\storage đi (nếu không xóa thì không chạy lại lệnh được) 
+sau đó chạy lại lệnh : php artisan storage:link
+E:\E\Laravel Vuejs\SourceCodePBL4\SourceCodePBL4\API-Laravel>php artisan storage:link
+The [E:\E\Laravel Vuejs\SourceCodePBL4\SourceCodePBL4\API-Laravel\public\storage] link has been connected to [E:\E\Laravel Vuejs\SourceCodePBL4\SourceCodePBL4\API-Laravel\storage\app/public].
+The links have been created.
+Thì toàn bộ ảnh của folder : E:\E\Laravel Vuejs\SourceCodePBL4\SourceCodePBL4\API-Laravel\storage\app\public
+sẽ được đồng bộ qua folder public/storage 
+File : E:\E\Laravel Vuejs\SourceCodePBL4\SourceCodePBL4\API-Laravel\config\filesystems.php
+        'public' => [
+            'driver' => 'local',
+            // 'root' => storage_path('app/public'),
+            'root' => public_path('storage'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
 
+Tắt project và chạy lại là đảm bảo được . 
+================================================================
+HÀM CHECK LOGIN TỰ ĐỘNG 
+$credentials = $request->only('email', 'password');
+    LƯU Ý : ĐỐI VỚI HÀM $credentials = $request->only('email', 'password'); 
+    thì chỉ được ghi cố định là ('email', 'password'); => không được ghi khác chính vì thế mà bên form html . 
+    Dù có thể là username hoặc email nhưng mà vẫn phải đặt name="email" để qua bên này lấy . 
+
+================================================================
 

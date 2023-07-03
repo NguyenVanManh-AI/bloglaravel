@@ -1,0 +1,237 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\RequestCreateUser;
+use Illuminate\Http\Request;
+use Hash;
+use Session;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Brian2694\Toastr\Facades\Toastr;
+use Laravel\Socialite\Facades\Socialite;
+use Exception;
+use Mail;
+use App\Mail\NotifyMail;
+
+class BlogAuthController extends Controller
+{
+
+    public function dashboard()
+    {
+        if(Auth::check()) return view("Blog.Layouts.Master");
+        return view('auth.login');
+    } 
+
+    public function login()
+    {
+        if(Auth::check()) return redirect("dashboard");
+        return view('Blog.Auth.login');
+    } 
+    public function register()  
+    {
+        if(Auth::check()) return redirect("dashboard");
+        return view('Blog.Auth.register');
+    }
+
+    public function logout() {
+        Session::flush();
+        Auth::logout();
+        return Redirect('login');
+    }
+
+    public function userLogin(Request $request)
+    {
+        $data = $request->all();
+        $emailOrUsername = $data['email'];
+        // cho phép đăng nhập bằng Email hoặc Username 
+        // Đây là login bằng email 
+        if (strpos($emailOrUsername, '@') !== false) {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
+            // $this->sendMail($user);
+            $credentials = $request->only('email', 'password');
+            // LƯU Ý : ĐỐI VỚI HÀM $credentials = $request->only('email', 'password'); 
+            // thì chỉ được ghi cố định là ('email', 'password'); => không được ghi khác 
+            // chính vì thế mà bên form html . Dù có thể là username hoặc email nhưng mà vẫn phải đặt 
+            // name="email" để qua bên này lấy . 
+            if (Auth::attempt($credentials)) { // trong này bao gồm cả hàm xác nhận đã login rồi (Auth::login($newUser)) 
+                // (bao gồm thêm tất cả các hàm , check mật khẩu đúng hay không các kiểu nữa)
+                Toastr::success('Login successful !');
+                return redirect()->intended('dashboard');
+            }
+            Toastr::error('Login details are not valid !');
+            return redirect()->back()->withInput();
+        } 
+        // Đây là login bằng Username 
+        else {
+            $user = User::where('username',$emailOrUsername)->first();
+            if($user && (Hash::check($data['password'], $user->password))) {
+                Auth::login($user); // xác nhận đã login 
+                Toastr::success('Login successful !');
+                return redirect()->intended('dashboard');
+            }
+        }
+    }
+
+    public function userRegister(RequestCreateUser $request)
+    {  
+        // Không cho phép username có kí tự @ . (Nhằm phân biệt với email khi login)
+        if (strpos($request->username, '@') !== false) {
+            Toastr::error('Username cannot contain the @ character !');
+            return redirect()->back()->withInput();
+        }
+
+        // Sau khi pass qua request thì kiểm tra xem có user nào (khác email được cung cấp mà có username đó hay không)
+        // có thì trả về false ngay lập tức  
+        $user = User::where('email', '!=', $request->email)->where('username', $request->username)->first();
+        if($user){
+            Toastr::error('Username already exists !');
+            return redirect()->back()->withInput();
+        }
+        // $data = $request->all(); // lấy toàn bộ form input được gửi lên 
+        $findEmail = User::where('email', $request->email)->first();
+        if($findEmail){
+            if($findEmail['password']){
+                Toastr::error('Account already exists !');
+                // return redirect("register");
+                return redirect()->back()->withInput();
+            }
+            else { // chưa có password mà có email thì là tài khoản của mạng xã hội (google,github,..) => cập nhật password 
+                $avatar = $this->saveAvatar($request);
+                $findEmail->update([
+                    'password' => Hash::make($request['password']),
+                    'avatar' => $avatar,
+                    'name' => $request['name'],
+                    'username' => $request['username'],
+                    'gender' => $request['gender']
+                ]);
+            }
+        }
+        else {
+            $data = $request->all();
+            $avatar = $this->saveAvatar($request);
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'avatar' => $avatar,
+                'username' => $request['username'],
+                'gender' => $request['gender']
+            ]);
+            Toastr::success('Register successful !');
+            $this->sendMail($user);
+        }
+        return redirect()->back();
+        // return redirect("dashboard")->withSuccess('You have signed-in');
+    }
+
+    public function saveAvatar(Request $request){
+        if ($request->hasFile('avatar')) {
+            $image = $request->file('avatar');
+            // $filename = time() . '.' . $image->getClientOriginalExtension();
+            // $image->getClientOriginalName() = tên file (bao gồm cả tên file và phần mở rộng)
+            // pathinfo($name, PATHINFO_FILENAME); => hàm để bỏ phần mở rộng đi chỉ lấy phần tên trước dấu chấm 
+            $filename =  pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME) . '_' . time() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public/Blog/image/avatars', $filename);
+            return 'storage/Blog/image/avatars/' . $filename;
+        }
+    }
+
+    // Login by Google 
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+    public function handleGoogleCallback()
+    {
+        try {
+            $user = Socialite::driver('google')->user();
+            $finduser = User::where('google_id', $user->id)->first();
+            if($finduser){ // nếu đã tồn tại thì cho vào dashboard 
+                Auth::login($finduser);
+                return redirect()->intended('dashboard');
+            }else{// nếu chưa thì tạo account 
+                $findEmail = User::where('email', $user->email)->first();
+                if($findEmail){ // đã có trong hệ thống thì update id 
+                    $findEmail->update(['google_id' => $user->id]);
+                    Auth::login($findEmail); // xác nhận đã login 
+                    Toastr::success('Login successful !');
+                }
+                else { // chưa có thì tạo tài khoản 
+                    $newUser = User::create([
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'google_id'=> $user->id,    
+                        'username'=> 'user_' . $user->id,    
+                        'avatar'=> $user->avatar,    
+                        // 'password' => encrypt('123456vanmanh') // mật khẩu mặt định 
+                    ]);
+                    Auth::login($newUser); // xác nhận đã login 
+                    Toastr::success('Register successful !');
+                    $this->sendMail($newUser);
+                }
+                return redirect()->intended('dashboard');
+            }            
+        } catch (Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+    // send Mail 
+    public function sendMail($user){
+        Mail::to($user->email)->send(new NotifyMail($user->name));     
+        if (Mail::failures()) {
+            Toastr::error('Send Mail Error !');
+            return response();
+        }
+        else{
+            Toastr::success('Send Mail Success !');
+            return response();
+        }
+    }
+
+    // Login by Github 
+    public function redirectToGithub()
+    {
+        return Socialite::driver('github')->redirect();
+    }
+    public function handleGithubCallback()
+    {
+        try {
+            $user = Socialite::driver('github')->user();
+            $finduser = User::where('github_id', $user->id)->first();
+            if($finduser){ // nếu đã tồn tại thì cho vào dashboard 
+                Auth::login($finduser);
+                return redirect()->intended('dashboard');
+            }else{// nếu chưa thì tạo account 
+                $findEmail = User::where('email', $user->email)->first();
+                if($findEmail){ // đã có trong hệ thống thì update id 
+                    $findEmail->update(['github_id' => $user->id]);
+                    Auth::login($findEmail); // xác nhận đã login 
+                    Toastr::success('Login successful !');
+                }
+                else { // chưa có thì tạo tài khoản 
+                    $newUser = User::create([
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'github_id'=> $user->id,   
+                        'username'=> 'user_' . $user->id,    
+                        'avatar'=> $user->avatar,     
+                        // 'password' => encrypt('123456vanmanh') // mật khẩu mặt định 
+                    ]);
+                    Auth::login($newUser); // xác nhận đã login 
+                    Toastr::success('Register successful !');
+                    $this->sendMail($newUser);
+                }
+                return redirect()->intended('dashboard');
+            }            
+        } catch (Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+
+}

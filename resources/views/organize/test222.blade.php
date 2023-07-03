@@ -14,7 +14,7 @@
     {{-- <link rel="stylesheet" href="{{ asset('css/article/styles-test.css') }}"> --}}
     <style>
         * {
-            background-color: yellow;
+            /* background-color: yellow; */
         }
     </style>
 @endpush

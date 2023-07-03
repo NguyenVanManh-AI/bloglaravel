@@ -6,7 +6,7 @@
 
 <style>
     * {
-        border: 1px solid pink;
+        /* border: 1px solid pink; */
     }
 </style>
 <script>

@@ -3,23 +3,27 @@
 use App\Http\Controllers\ArticleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomAuthController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BlogAuthController;
 
+// Blog 
 // Auth 
-Route::get('login', [CustomAuthController::class, 'index'])->name('login');
-Route::post('custom-login', [CustomAuthController::class, 'customLogin'])->name('login.custom'); 
-Route::get('registration', [CustomAuthController::class, 'registration'])->name('register-user');
-Route::post('custom-registration', [CustomAuthController::class, 'customRegistration'])->name('register.custom'); 
+Route::get('login', [BlogAuthController::class, 'login'])->name('login');
+Route::get('register', [BlogAuthController::class, 'register'])->name('register');
+Route::post('user-login', [BlogAuthController::class, 'userLogin'])->name('login.user'); 
+Route::post('user-registration', [BlogAuthController::class, 'userRegister'])->name('register.user'); 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', [CustomAuthController::class, 'dashboard']);
-    Route::get('signout', [CustomAuthController::class, 'signOut'])->name('signout');
+    Route::get('dashboard', [BlogAuthController::class, 'dashboard']);
+    Route::get('logout', [BlogAuthController::class, 'logout'])->name('logout');
 });
 
-// OAuth2 
-Route::get('authorized/google', [CustomAuthController::class, 'redirectToGoogle']);
-Route::get('authorized/google/callback', [CustomAuthController::class, 'handleGoogleCallback']);
 
-Route::get('authorized/github', [CustomAuthController::class, 'redirectToGithub']);
-Route::get('authorized/github/callback', [CustomAuthController::class, 'handleGithubCallback']);
+// OAuth2 
+Route::get('authorized/google', [BlogAuthController::class, 'redirectToGoogle'])->name('google');
+Route::get('authorized/google/callback', [BlogAuthController::class, 'handleGoogleCallback']);
+
+Route::get('authorized/github', [BlogAuthController::class, 'redirectToGithub'])->name('github');
+Route::get('authorized/github/callback', [BlogAuthController::class, 'handleGithubCallback']);
 
 // Route::get('authorized/twitter', [CustomAuthController::class, 'redirectToTwitter']);
 // Route::get('authorized/twitter/callback', [CustomAuthController::class, 'handleTwitterCallback']);
