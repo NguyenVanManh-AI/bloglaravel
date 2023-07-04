@@ -34,7 +34,7 @@
                       <a class="small" href="{{ route('register') }}">Do not have an account ? Sign up here.</a>
                     </div>
                     <div class="text-center">
-                        <a class="small" href="#">Forgot password?</a>
+                        <a class="small" data-bs-toggle="modal" data-bs-target="#modalForGotPassword" href="#">Forgot password?</a>
                       </div>
                   </div>
 
@@ -51,20 +51,44 @@
                         <i class="fa-brands fa-github"></i> Sign up with Github
                     </button>
                   </div> --}}
-
                 <div class="social google">
                     <a href="{{ route('google') }}" >
                         <img src="{{asset('Blog/image/google.png')}}" alt=""> Sign up with Google
                     </a>
                 </div>
-    
                 <div class="social github">
                     <a href="{{ route('github') }}" >
                         <img src="{{asset('Blog/image/github.png')}}" alt=""> Sign up with Github
                     </a>
                 </div>
-
                 </form>
+                <!-- Modal -->
+                <div class="modal fade" id="modalForGotPassword" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Forgot Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form method="POST" action="{{ route('forgot.sendcode')}}" enctype="multipart/form-data">
+                        @csrf 
+                          <div class="form-group row">
+                            <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+                            <div class="col-sm-10">
+                              <input name="email" type="email" class="form-control" id="staticEmail" placeholder="email@example.com" value="">
+                            </div>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                      </div>
+                    </form>
+                      {{-- data-bs-dismiss="modal" là close modal --}}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

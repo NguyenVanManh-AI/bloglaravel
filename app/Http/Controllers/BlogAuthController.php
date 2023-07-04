@@ -13,6 +13,9 @@ use Laravel\Socialite\Facades\Socialite;
 use Exception;
 use Mail;
 use App\Mail\NotifyMail;
+use App\Mail\ForgotPassword;
+use App\Models\PasswordReset;
+use Illuminate\Support\Str;
 
 class BlogAuthController extends Controller
 {
@@ -232,6 +235,58 @@ class BlogAuthController extends Controller
             dd($e->getMessage());
         }
     }
+
+    // Forgot password
+    public function forGotSend(Request $request)
+    {
+        // Nếu không có cột id thì Không dùng first() hay firstOrFail 
+        // hay firstOrCreate , updateOrCreate gì được hết . 
+        // thêm vào thì dùng bình thường . 
+        $token = Str::random(32);
+        $email = $request->email;
+        $user = PasswordReset::where('email', $email)->first();
+        if($user) $user->update(['token' => $token]);
+        else {
+            PasswordReset::create([
+                'email' => $email,
+                'token' => $token
+            ]);
+        }
+        $url = 'http://localhost:8000/forgot-form?token=' . $token;
+        Mail::to($email)->send(new ForgotPassword($url));
+        return redirect()->back();
+    }
+
+    public function forGotForm(Request $request){
+        return view('Blog.Auth.reset-password');
+    }
+
+    public function forGotUpdate(Request $request){
+        $token = $request->token;
+        $new_password = Hash::make($request->new_password);
+        $userReset = PasswordReset::where('token', $token)->first();
+        if($userReset){
+            if($request->new_password != $request->confim_new_password){
+                Toastr::error('New password and confirm new password do not match !');
+                return redirect()->back()->withInput();
+            }
+            $user = User::where('email',$userReset->email)->first();
+            if($user){
+                $user->update(['password' => $new_password]);
+                Toastr::success('Reset Password successful !');
+                $userReset->delete(); // reset rồi thì xóa trong table password_reset đi 
+                return redirect('login');
+            }
+            Toastr::error('Can not find the account !'); // không tìm thấy tài khoản 
+            return redirect('register');
+        } 
+        else {
+            Toastr::error('Token has expired !');
+            return redirect('register');
+        }
+
+    }
+
 
 
 }

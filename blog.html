@@ -1648,4 +1648,66 @@ $credentials = $request->only('email', 'password');
     Dù có thể là username hoặc email nhưng mà vẫn phải đặt name="email" để qua bên này lấy . 
 
 ================================================================
++ Làm chức năng quên mật khẩu (bằng gửi link chứa token hoặc mã đến mail)(Lưu token hoặc mã vào database)
+    + table 
+        + email 
+        + code hoặc token 
 
+================================================================
+Điều gì khiến model này liên kết với table users ở database : <?php
+    namespace App\Models;
+    use Illuminate\Database\Eloquent\Factories\HasFactory;
+    use Illuminate\Database\Eloquent\Model;
+    class Article extends Model
+    {
+        use HasFactory;
+        protected $fillable = [
+            'id', 'id_user', 'title', 'content'
+        ];
+    }
+
+ChatGPT 
+    Trong Laravel, khi một model được tạo và kế thừa từ lớp Illuminate\Database\Eloquent\Model, Laravel ánh xạ model đó với một bảng trong cơ sở dữ liệu. Mặc định, Laravel sẽ giả định rằng tên của bảng tương ứng với tên của model theo quy tắc chữ thường và số nhiều.
+    Trong trường hợp của model Article trong đoạn mã mẫu của bạn, Laravel sẽ liên kết model này với bảng articles trong cơ sở dữ liệu. Nếu tên bảng không tuân theo quy tắc này, bạn có thể chỉ định tên bảng bằng cách sử dụng thuộc tính protected $table trong model. Ví dụ:
+    protected $table = 'my_articles';
+    Ngoài ra, Laravel sẽ giả định rằng khóa chính (primary key) của bảng là cột có tên là id. Nếu tên cột khóa chính của bảng khác với quy tắc này, bạn có thể chỉ định tên cột khóa chính bằng cách sử dụng thuộc tính protected $primaryKey trong model. Ví dụ:
+    protected $primaryKey = 'article_id';
+    Trong trường hợp model Article của bạn, khi tạo một instance của model và thực hiện các thao tác truy vấn như tìm kiếm, lưu trữ, cập nhật, xóa dữ liệu, Laravel sẽ sử dụng bảng users trong cơ sở dữ liệu và các cột id, id_user, title, content tương ứng với các thuộc tính $fillable trong model để thao tác với dữ liệu trong bảng đó.
+
+=> Các Model đặt tên theo quy tắc => sẽ được tự đông ánh xạ với các table trong database 
+    + Ví dụ : 
+        + Article sẽ được ánh xạ với articles
+        + User sẽ được ánh xạ với users
+=> Nếu các table không có Model thì ta có thể liên kết giữa Model và table trong database bằng cách : 
+    thêm vào class trong Model 
+        protected $table = 'my_articles';
+
+
+CHỨC NĂNG QUÊN MẬT KHẨU : 
+    + Trong Laravel có thiết kế thêm chức năng quên mật khẩu : https://laravel.com/docs/10.x/passwords
+    + Nhưng ta cũng có thể tự làm cái này cũng được . 
+
+    + Đã có sẵn table : password_resets 
+        + 	email	token	created_at	
+    => chưa có Model thì đi tạo 
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan make:model PasswordReset
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Models\PasswordReset.php
+        <?php
+            namespace App\Models;
+            use Illuminate\Database\Eloquent\Factories\HasFactory;
+            use Illuminate\Database\Eloquent\Model;
+            
+            class PasswordReset extends Model
+            {
+                use HasFactory;
+                protected $table = 'password_resets';
+                protected $fillable = [
+                    'email', 'token', 'created_at'	
+                ];
+            }
+    
+    + C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan make:mail ForgotPassword
+    + Thêm cột id vào cho table 
+        + Nếu không có cột id thì Không dùng first() hay firstOrFail hay firstOrCreate , updateOrCreate gì được hết . 
+            thêm vào thì dùng bình thường . 
+================================================================

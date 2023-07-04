@@ -11,7 +11,14 @@ use App\Http\Controllers\BlogAuthController;
 Route::get('login', [BlogAuthController::class, 'login'])->name('login');
 Route::get('register', [BlogAuthController::class, 'register'])->name('register');
 Route::post('user-login', [BlogAuthController::class, 'userLogin'])->name('login.user'); 
-Route::post('user-registration', [BlogAuthController::class, 'userRegister'])->name('register.user'); 
+Route::post('user-register', [BlogAuthController::class, 'userRegister'])->name('register.user'); 
+
+// Forgot Password
+Route::post('forgot-pw-sendcode', [BlogAuthController::class, 'forGotSend'])->name('forgot.sendcode'); 
+Route::get('forgot-form', [BlogAuthController::class, 'forGotForm']);
+Route::post('forgot-update', [BlogAuthController::class, 'forGotUpdate'])->name('forgot.update');
+
+
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', [BlogAuthController::class, 'dashboard']);
     Route::get('logout', [BlogAuthController::class, 'logout'])->name('logout');
