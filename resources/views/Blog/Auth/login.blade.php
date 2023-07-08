@@ -12,11 +12,12 @@
                 <!-- Sign In Form -->
               <form method="POST" action="{{ route('login.user')}}" enctype="multipart/form-data">
                 @csrf 
-                  <div class="form-floating mb-3">
-                    <input name="email" value="{{ old('email') }}" type="text" class="form-control" id="floatingInput" placeholder="name@example.com" required>
-                    <label for="floatingInput">Email Or Username</label>
+                  <div class="form-group has-float-label">
+                    <input name="email" value="{{ old('email') }}" type="text" class="form-control" id="email" placeholder="name@example.com" required>
+                    <label for="email">Email Or Username</label>
                   </div>
-                  <div class="form-floating mb-3">
+
+                  <div class="form-floating mb-3 has-float-label">
                     <input name="password" value="{{ old('password') }}" type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
                     <label for="floatingPassword">Password</label>
                   </div>
@@ -29,12 +30,12 @@
                   </div>
   
                   <div class="d-grid">
-                    <button class="btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Sign in</button>
+                    <button class="col-12 btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Sign in</button>
                     <div class="text-center">
                       <a class="small" href="{{ route('register') }}">Do not have an account ? Sign up here.</a>
                     </div>
                     <div class="text-center">
-                        <a class="small" data-bs-toggle="modal" data-bs-target="#modalForGotPassword" href="#">Forgot password?</a>
+                        <a class="small" data-toggle="modal" data-target="#modalForGotPassword" href="#">Forgot password?</a>
                       </div>
                   </div>
 
@@ -63,12 +64,12 @@
                 </div>
                 </form>
                 <!-- Modal -->
-                <div class="modal fade" id="modalForGotPassword" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog">
+                <div class="modal fade" id="modalForGotPassword" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Forgot Password</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button style="outline: none" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                       </div>
                       <div class="modal-body">
                         <form method="POST" action="{{ route('forgot.sendcode')}}" enctype="multipart/form-data">
@@ -81,8 +82,8 @@
                           </div>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" >Submit</button>
                       </div>
                     </form>
                       {{-- data-bs-dismiss="modal" là close modal --}}

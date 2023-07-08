@@ -76,6 +76,10 @@ class BlogAuthController extends Controller
                 Toastr::success('Login successful !');
                 return redirect()->intended('dashboard');
             }
+            else {
+                Toastr::error('Login details are not valid !');
+                return redirect()->back()->withInput();
+            }
         }
     }
 

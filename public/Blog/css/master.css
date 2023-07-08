@@ -11,3 +11,35 @@ a {
 li {
     list-style: none;
 }
+
+
+
+
+/* Scroll */
+::-webkit-scrollbar { /*toàn bộ ô cuộn*/
+    width: 13px;
+    
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track { 
+    background: white;  /*màu nền của ô cuộn */
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb { /*thanh cuộn nằm trong ô cuộn*/
+      background: #888;  
+      border-radius: 10px;
+      border: 3px solid transparent; /*HAY*/
+      background-clip: content-box;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover { /*thanh cuộn nằm trong ô cuộn khi hover vào */
+      background: #0085FF; 
+      /*background: #555; */
+      border-radius: 10px;
+      border: 3px solid transparent;
+      background-clip: content-box;
+  }
+  /* Scroll */

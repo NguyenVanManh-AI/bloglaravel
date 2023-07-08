@@ -13,29 +13,29 @@
                 {{-- upload file thì nhớ thêm enctype="multipart/form-data" --}}
                 @csrf 
                 {{-- nhớ tất cả các form đều phải thêm @csrf --}}
-                <div class="form-floating mb-3">
-                    <input value="{{ old('name') }}" name="name" type="text" class="form-control" id="floatingInputName" placeholder="myname" required autofocus>
+                <div class="form-floating mb-3 has-float-label">
+                    <input value="{{ old('name') }}" name="name" type="text" class="form-control" id="floatingInputName" placeholder="Full Name" required autofocus>
                     <label for="floatingInputName">Name</label>
                 </div>
 
-                <div class="form-floating mb-3">
-                  <input value="{{ old('username') }}" name="username" type="text" class="form-control" id="floatingInputUsername" placeholder="myusername" required>
+                <div class="form-floating mb-3 has-float-label">
+                  <input value="{{ old('username') }}" name="username" type="text" class="form-control" id="floatingInputUsername" placeholder="Username" required>
                   <label for="floatingInputUsername">Username</label>
                 </div>
   
-                <div class="form-floating mb-3">
-                  <input value="{{ old('email') }}" name="email" type="email" class="form-control" id="floatingInputEmail" placeholder="name@example.com" required>
+                <div class="form-floating mb-3 has-float-label">
+                  <input value="{{ old('email') }}" name="email" type="email" class="form-control" id="floatingInputEmail" placeholder="email@example.com" required>
                   <label for="floatingInputEmail">Email address</label>
                 </div>
   
                 {{-- <hr> --}}
   
-                <div class="form-floating mb-3">
+                <div class="form-floating mb-3 has-float-label">
                   <input value="{{ old('password') }}" name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
                   <label for="floatingPassword">Password</label>
                 </div>
   
-                <div class="form-floating mb-3">
+                <div class="form-floating mb-3 has-float-label">
                   <input value="{{ old('confirm-password') }}" name="confirm-password" type="password" class="form-control" id="floatingPasswordConfirm" placeholder="Confirm Password" required>
                   <label for="floatingPasswordConfirm">Confirm Password</label>
                 </div>
@@ -171,7 +171,7 @@
                     </div>
                 </div>
                 <div class="d-grid mb-2">
-                  <button class="btn btn-lg btn-primary btn-login fw-bold text-uppercase" type="submit">Register</button>
+                  <button class="col-12 btn btn-lg btn-primary btn-login fw-bold text-uppercase" type="submit">Register</button>
                 </div>
                 <a class="d-block text-center mt-2 small" href="{{ route('login') }}">Have an account? Sign In</a>
               </form>

@@ -14,16 +14,16 @@
                 @csrf 
                 {{-- lấy token cho vào input để gửi lên --}}
                 <input hidden value="{{ old('token') }}" name="token" type="text" class="form-control" id="token" placeholder="Token">
-                <div class="form-floating mb-3">
+                <div class="form-floating mb-3 has-float-label">
                   <input minlength="6" value="{{ old('new_password') }}" name="new_password" type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
                   <label for="floatingPassword">New Password</label>
                 </div>
-                <div class="form-floating mb-3">
+                <div class="form-floating mb-3 has-float-label">
                   <input minlength="6" value="{{ old('confim_new_password') }}" name="confim_new_password" type="password" class="form-control" id="floatingPasswordConfirm" placeholder="Confirm Password" required>
                   <label for="floatingPasswordConfirm">Confirm New Password</label>
                 </div>
                 <div class="d-grid mb-2">
-                  <button class="btn btn-lg btn-primary btn-login fw-bold text-uppercase" type="submit">Submit</button>
+                  <button class="col-12 btn btn-lg btn-primary btn-login fw-bold text-uppercase" type="submit">Submit</button>
                 </div>
                 <a class="d-block text-center mt-2 small" href="{{ route('login') }}">Have an account? Sign In</a>
               </form>

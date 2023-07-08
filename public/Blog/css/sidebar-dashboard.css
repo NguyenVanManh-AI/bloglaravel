@@ -1,0 +1,257 @@
+/* Google Fonts Import Link */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+/* logo */
+.sidebar #logo {
+    height: 60px;
+    background-color: white;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    padding: 0px 10px;
+    justify-content: space-between;
+    color: #0085FF;
+    cursor: pointer;
+}
+.sidebar #logo a {
+    height: 60px;
+}
+.sidebar #img_logo {
+    width: 50px;
+    height: 50px;
+    /* padding: 5px; */
+    /* border: 2px solid #FF291A; */
+    border-radius: 10px;
+}
+.sidebar #text_logo {
+    font-size:20px;
+    font-weight: bold;
+    color: #FF291A;
+}
+.sidebar #show_sidebar {
+    display: flex;
+    width: 30px;
+    height: 30px;
+    font-size: 29px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+/* logo */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    background: #0085FF;
+    z-index: 100;
+    transition: all 0.5s ease;
+    padding: 10px;
+    padding-bottom: 62px;
+}
+.sidebar.close_sidebar {
+    width: 78px;
+}
+.sidebar .nav-links {
+    height: 100%;
+    overflow: auto;
+}
+.sidebar.close_sidebar .nav-links {
+    height: 100%;
+    overflow: auto;
+    overflow: visible;
+}
+.sidebar .nav-links::-webkit-scrollbar {
+    display: none;
+}
+.sidebar .nav-links li {
+    position: relative;
+    list-style: none;
+    padding: 6px 0px;
+    border-top: 3px solid white;
+}
+.sidebar .nav-links li .link_name {
+    font-size: 15px !important;
+}
+.sidebar .nav-links li i:nth-child(1) {
+    font-size: 18px !important;
+    margin: 0px 20px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    font-size: 18px;
+    cursor: pointer;
+}
+.sidebar .nav-links li .arrow {
+    font-size: 18px !important;
+    margin-right: 20px !important;
+    margin-left: auto !important;
+}
+.link_arrow .arrow {
+    transition: transform 0.5s ease !important;
+}
+.transform_arrow .arrow {
+    transition: transform 0.5s ease !important;
+    transform: rotate(-180deg);
+}
+.sidebar.close_sidebar .nav-links i.arrow {
+    display: none;
+}
+.sidebar .nav-links li a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 10px;
+    color: #fff;
+}
+/* .sidebar.close_sidebar .nav-links li a .link_name {
+    opacity: 0;
+    pointer-events: none;
+} */
+
+
+
+/* .sidebar .nav-links li a .link_name {
+    transition: all 0.5s ease ;
+} */
+.sidebar .nav-links li a .link_name {
+    transition-property: all;
+    transition-duration: 0.5s;
+    transition-timing-function: ease;
+    color: white;
+}
+
+.sidebar.close_sidebar .nav-links li a .link_name{
+    width: 0px !important;
+    opacity: 0;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    font-size: 0px !important;
+    transition: all 0.5s ease;
+}
+.sidebar .profile-details {
+    margin-left: -10px;
+    position: fixed;
+    bottom: 0;
+    width: 260px;
+    display: flex;
+    align-items: center;
+    /* justify-content: space-between; */
+    background: #11101d;
+    padding: 6px 0;
+    transition: all 0.5s ease;
+}
+.sidebar .profile-details i{
+    transition: all 0.5s ease;
+    color: #11101d;
+}
+.sidebar .profile-details:hover i {
+    transition: all 0.5s ease;
+    color: white;
+}
+.sidebar .profile-details i:hover {
+    color: red;
+}
+.sidebar .profile-details #logout {
+    margin-left: auto;
+    transition: all 0.5s ease;
+}
+.sidebar .profile-details #logout i {
+    font-size: 22px !important;
+}
+.sidebar.close_sidebar .profile-details #logout {
+    margin: auto;
+}
+
+.sidebar.close_sidebar .profile-details {
+    margin-left: -10px;
+    width: 78px;
+    /* justify-content: center; */
+}
+.sidebar.close_sidebar .profile-details i{
+    z-index: 999;
+    transition: all 0.5s ease;
+    color: white;
+}
+.sidebar.close_sidebar .profile-details i:hover{
+    color: red !important;
+}
+.sidebar .profile-details .profile_name,
+.sidebar .profile-details .job {
+    color: #fff;
+    font-size: 18px;
+    white-space: nowrap;
+}
+.sidebar.close_sidebar .profile-details .name-job {
+    width: 0px;
+    opacity: 0;
+    margin: 0px;
+    transition: all 0.5s ease;
+}
+.sidebar .profile-details .name-job {
+    opacity: 1;
+    margin-left: 22px;
+    transition: all 0.5s ease;
+}
+.sidebar .profile-details .name-job .job{
+    font-size: 12px;
+}
+/* CONTENT */
+.home-main {
+    position: relative;
+    /* background: #e4e9f7; */
+    height: 100vh;
+    left: 260px;
+    width: calc(100% - 260px);
+    transition: all 0.5s ease;
+}
+.sidebar.close_sidebar ~ .home-main {
+    left: 78px;
+    width: calc(100% - 78px);
+}
+/* CONTENT */
+.sidebar .list_card a {
+    margin-left: 0px;
+    transition: all 0.5s ease;
+}
+.sidebar .card-body2 a{
+    margin-left: 20px;
+    transition: all 0.5s ease;
+}
+.sidebar .nav-links li a:not(#logout):hover  {
+    transition: all 0.5s ease;
+    background: white ;
+    color: #0085FF !important;
+}
+.sidebar .nav-links li a:not(#logout):hover .link_name {
+    transition: all 0.5s ease;
+    color: #0085FF !important;
+}
+/* logo */
+.sidebar.close_sidebar #logo {
+    justify-content: center;
+}
+.sidebar.close_sidebar #show_sidebar {
+    width: 60px !important;
+}
+.sidebar #logo #text_logo, .sidebar #logo #img_logo {
+    transition: all 0.5s ease;
+}
+.sidebar.close_sidebar #logo #text_logo, .sidebar.close_sidebar #logo #img_logo {
+    width: 0px !important;
+    opacity: 0;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    font-size: 0px !important;
+    transition: all 0.5s ease;
+}

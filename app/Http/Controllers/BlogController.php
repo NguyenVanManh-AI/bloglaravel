@@ -11,5 +11,11 @@ use Illuminate\Support\Facades\Auth;
 
 class BlogController extends Controller
 {
-    //
+    public function dashboard(Request $request){
+        return view('Blog.Layouts.Dashboard');
+    }
+
+    public function all(Request $request){
+        return view('Blog.Content.All');
+    }
 }
