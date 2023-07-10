@@ -43,3 +43,23 @@ li {
       background-clip: content-box;
   }
   /* Scroll */
+
+
+/* all article */
+#content-main {
+    position: relative;
+}
+#index_article {
+    position: unset; 
+    /* vấn đề nằm ở đây , do #index_article có class col-12 mà mấy class col này có mặc định là có position: relative; */
+}
+#pagination_container {
+    position: absolute;
+    bottom: 6px;
+}
+
+/* my article  */
+#my_article {
+    position: unset; 
+    /* vấn đề nằm ở đây , do #index_article có class col-12 mà mấy class col này có mặc định là có position: relative; */
+}

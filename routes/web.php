@@ -35,17 +35,16 @@ Route::get('authorized/github/callback', [BlogAuthController::class, 'handleGith
 // Route::get('authorized/twitter', [CustomAuthController::class, 'redirectToTwitter']);
 // Route::get('authorized/twitter/callback', [CustomAuthController::class, 'handleTwitterCallback']);
 
-// Article 
-
+// Blog 
 Route::prefix('blog')->controller(BlogController::class)->name('blog.')->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', 'dashboard');
-        Route::get('/all', 'all');
+        Route::get('/all', 'all')->name('all');
 
-        Route::get('/add', 'showAdd');
+        Route::get('/add', 'showAdd')->name('add');
         Route::get('/detail/{id}', 'showDetail')->name('show');
         Route::get('/edit/{id}', 'showEdit')->name('show-edit');
-        Route::get('/my', 'myArticle');
+        Route::get('/my', 'myArticle')->name('my');
 
         Route::post('/add', 'addArticle')->name('add');
         Route::post('/update', 'updateArticle')->name('update');
@@ -54,6 +53,15 @@ Route::prefix('blog')->controller(BlogController::class)->name('blog.')->group(f
         Route::get('/ajax-search-my', 'ajaxSearchMy')->name('search-my');
         Route::get('/test', 'test')->name('test');
         Route::get('/test222', 'test222')->name('test222');
+    });
+});
+
+// Infor 
+Route::prefix('infor')->controller(BlogAuthController::class)->name('infor.')->group(function () {
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/view-infor', 'viewInfor')->name('view-infor');
+        Route::post('/update-infor', 'updateInfor')->name('update-infor');
+        Route::post('/change-password', 'changePassword')->name('change-password');
     });
 });
 

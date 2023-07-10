@@ -1723,4 +1723,74 @@ Bootstrap 4 Float Label
 ================================================================
 https://stackoverflow.com/questions/37928998/how-to-use-a-jquery-plugin-inside-vue
 
+================================================================
+use RichTextEditor in HTML CSS JS  
+    + https://richtexteditor.com/
+        => Download thư viện sau đó giải nén ra và lấy các file css, js cần thiết như ở dưới 
+        => Vào https://richtexteditor.com/docs/ => Javascript Method List để xem các hàm xử lý 
+        => Gần như ta chỉ dùng hàm .getHTMLCode() để lấy code được render ra thôi 
+    + Mà tốt hơn hết thì cứ giải nén ra rồi cho toàn bộ folder richtexteditor vào dự án của mình
+        + Lý do là lỡ trong 3 file này nó lại import file khác có trong folder nữa thì nếu mà ta chỉ lấy ra 3 file đó 
+        thôi thì false.  
 
+    + Code :  
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Rich Text Editor Demo</title>
+            <link rel="stylesheet" href="richtexteditor/rte_theme_default.css" />
+            <script type="text/javascript" src="richtexteditor/rte.js"></script>
+            <script type="text/javascript" src="richtexteditor/plugins/all_plugins.js"></script>
+        </head>
+        <body>
+            <div id="div_editor1">
+                <p>This is a default toolbar demo of Rich text editor.</p>
+            </div>
+            <button id="btn">GET</button>
+            <script>
+                var editor1 = new RichTextEditor("#div_editor1");
+                var btn = document.getElementById('btn');
+                btn.addEventListener('click', function() {
+                    console.log(editor1.getHTMLCode());
+                });
+            </script>
+        </body>
+        </html>
+================================================================
+    + Dùng luôn cho textarea vẫn được . 
+        <textarea name="content" class="form-control" id="content" rows="5" placeholder="Content">{{ old('content') }}</textarea>
+        <script>
+            var editor1 = new RichTextEditor("#content");
+        </script>
+        => Chỉ code như thế này thôi . Để nguyên như vậy và submit là trên server vẫn nhận được content là render HTML
+        
+    + Khi hiển thị ra 
+        <div>{{$article->content}}</div> <!-- CÁCH HIỂN THỊ TEXT  -->
+        <div>{!! $article->content !!}</div> <!-- CÁCH HIỂN THỊ HTML  -->
+================================================================
+Fix lỗi Unique khi update 
+    + Tham khảo : https://www.w3docs.com/snippets/php/how-validate-unique-email-out-of-the-user-that-is-updating-it-in-laravel.html#:~:text=In%20Laravel%2C%20you%20can%20use,in%20the%20specified%20database%20table.
+    + Khi update thì ta có rule 
+        + Mỗi username chỉ được 1 người duy nhất đăng kí  
+        + Mỗi email chỉ được 1 người duy nhất đăng kí  
+        + Nếu ta ghi rule là như thế này : 
+            return [
+                'name' => 'required',
+                'username' => 'required|unique:users',
+                'email' => 'required|email|unique:users',
+                'gender' => 'required',
+            ];
+
+        => Tất nhiên khi user này update username hoặc email thành username hay email của người khác thì nó phải báo rồi 
+        nhưng khi mà user này không chỉnh sửa gì cả và update thì nó cũng báo lỗi . 
+        => Nó báo lỗi là trùng ngay chính cái username và email hiện tại của nó . 
+
+        + Cách fix là : C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Requests\RequestUpdateInfor.php
+            use Illuminate\Support\Facades\Auth;
+            return [
+                'name' => 'required',
+                'username' => 'required|unique:users,username,'.Auth::user()->id,
+                'email' => 'required|email|unique:users,email,'.Auth::user()->id,
+                'gender' => 'required',
+            ];
+================================================================

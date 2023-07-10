@@ -23,7 +23,7 @@
                 {{-- id="accordion" , data-parent="#accordion" là gom các collapse lại --}}
                 <div id="collapseUser" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
                 <div class="card-body2 list_card">
-                    <a href="#"><i class="fa-solid fa-address-card"></i><span class="link_name">Update Information</span></a>
+                    <a href="{{ route('infor.view-infor') }}"><i class="fa-solid fa-address-card"></i><span class="link_name">Update Information</span></a>
                     <a href="#"><i class="fa-solid fa-key"></i><span class="link_name">Change Password</span></a>
                 </div>
                 </div>
@@ -38,8 +38,9 @@
                 {{-- id="accordion" , data-parent="#accordion" là gom các collapse lại --}}
                 <div id="collapseArticle" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
                     <div class="card-body2 list_card">
-                        <a href="#"><i class="fa-solid fa-heart"></i><span class="link_name">My Article</span></a>
-                        <a href="#"><i class="fa-solid fa-square-plus"></i><span class="link_name">Add Article</span></a>
+                        <a href="{{ route('blog.all') }}"><i class="fa-solid fa-list"></i><span class="link_name">All Article</span></a>
+                        <a href="{{ route('blog.my') }}"><i class="fa-solid fa-heart"></i><span class="link_name">My Article</span></a>
+                        <a href="{{ route('blog.add') }}"><i class="fa-solid fa-square-plus"></i><span class="link_name">Add Article</span></a>
                     </div>
                 </div>
             </div>
@@ -49,10 +50,10 @@
         <li>
             <div class="profile-details">
                 <div class="name-job">
-                    <div class="profile_name">Prem Shahi</div>
+                    <div class="profile_name">{{auth()->user()->name}}</div>
                     <div class="job">Web Desginer</div>
                 </div>
-                <a href="" id="logout"><i class="bx bx-log-out"></i></a>
+                <a href="{{ route('logout') }}" id="logout"><i class="bx bx-log-out"></i></a>
             </div>
         </li>
     </ul>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RequestCreateUser;
+use App\Http\Requests\RequestUpdateInfor;
 use Illuminate\Http\Request;
 use Hash;
 use Session;
@@ -15,6 +16,8 @@ use Mail;
 use App\Mail\NotifyMail;
 use App\Mail\ForgotPassword;
 use App\Models\PasswordReset;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BlogAuthController extends Controller
@@ -63,7 +66,7 @@ class BlogAuthController extends Controller
             if (Auth::attempt($credentials)) { // trong này bao gồm cả hàm xác nhận đã login rồi (Auth::login($newUser)) 
                 // (bao gồm thêm tất cả các hàm , check mật khẩu đúng hay không các kiểu nữa)
                 Toastr::success('Login successful !');
-                return redirect()->intended('dashboard');
+                return redirect()->route('infor.view-infor');
             }
             Toastr::error('Login details are not valid !');
             return redirect()->back()->withInput();
@@ -74,7 +77,7 @@ class BlogAuthController extends Controller
             if($user && (Hash::check($data['password'], $user->password))) {
                 Auth::login($user); // xác nhận đã login 
                 Toastr::success('Login successful !');
-                return redirect()->intended('dashboard');
+                return redirect()->route('infor.view-infor');
             }
             else {
                 Toastr::error('Login details are not valid !');
@@ -159,7 +162,7 @@ class BlogAuthController extends Controller
             $finduser = User::where('google_id', $user->id)->first();
             if($finduser){ // nếu đã tồn tại thì cho vào dashboard 
                 Auth::login($finduser);
-                return redirect()->intended('dashboard');
+                return redirect()->route('infor.view-infor');
             }else{// nếu chưa thì tạo account 
                 $findEmail = User::where('email', $user->email)->first();
                 if($findEmail){ // đã có trong hệ thống thì update id 
@@ -180,7 +183,8 @@ class BlogAuthController extends Controller
                     Toastr::success('Register successful !');
                     $this->sendMail($newUser);
                 }
-                return redirect()->intended('dashboard');
+                // return redirect()->route('infor.view-infor');
+                return redirect()->route('infor.view-infor');
             }            
         } catch (Exception $e) {
             dd($e->getMessage());
@@ -212,7 +216,7 @@ class BlogAuthController extends Controller
             $finduser = User::where('github_id', $user->id)->first();
             if($finduser){ // nếu đã tồn tại thì cho vào dashboard 
                 Auth::login($finduser);
-                return redirect()->intended('dashboard');
+                return redirect()->route('infor.view-infor');
             }else{// nếu chưa thì tạo account 
                 $findEmail = User::where('email', $user->email)->first();
                 if($findEmail){ // đã có trong hệ thống thì update id 
@@ -233,7 +237,7 @@ class BlogAuthController extends Controller
                     Toastr::success('Register successful !');
                     $this->sendMail($newUser);
                 }
-                return redirect()->intended('dashboard');
+                return redirect()->route('infor.view-infor');
             }            
         } catch (Exception $e) {
             dd($e->getMessage());
@@ -290,7 +294,62 @@ class BlogAuthController extends Controller
         }
 
     }
+    public function getTitle($title_main,$title_sub){
+        $title['title_main'] = $title_main;
+        $title['title_sub'] = $title_sub;
+        return $title;
+    }
+    public function viewInfor(){
+        $user = Auth::user();
+        return view('Blog.Auth.ViewInfor',['user' => $user, 'title' => $this->getTitle('Information Settings','Update Information')]);
+    }
 
-
-
+    public function updateInfor(RequestUpdateInfor $request){
+        $user = User::find(Auth::user()->id);
+        $avatar = null;
+        if($request->avatar){
+            $avatar = $this->saveAvatar($request);
+            if(!Str::startsWith($user->avatar, 'http')){
+                if($user->avatar) File::delete($user->avatar); 
+            }
+        }
+        $status = $user->update([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'gender' => $request->gender,
+            'avatar' => $avatar ?? $user->avatar // nếu $avatar null thì giữ nguyên 
+        ]);
+        if ($status) {
+            // Session::flush();
+            // Auth::logout();
+            // Auth::login($user);
+            // Ở đây không cần logout xong login lại hay gì cả . 
+            // Update user này là nó tự update luôn cả thông tin đang đăng nhập 
+            Toastr::success('Successfully updated !');
+            return redirect()->route('infor.view-infor');
+        } else {
+            Toastr::error('Update failed !');
+            return redirect()->back()->withInput(); 
+        }
+    }
+    public function changePassword(Request $request){
+        $user = User::find(Auth::id());
+        if ($user->password == null) {
+            $user->update(['password' => Hash::make($request['new_password'])]);
+        } 
+        else {
+            if ($request->old_password != $request->confirm_old_password) {
+                Toastr::error('Old password and confirm old password do not match !');
+                return redirect()->back()->withInput();
+            }
+            if (!Hash::check($request->old_password, $user->password)) {
+                Toastr::error('Old password is incorrect !');
+                return redirect()->back()->withInput();
+            }
+            $user->update(['password' => Hash::make($request['new_password'])]);
+        }
+        Toastr::success('Updated password successfully !');
+        return redirect()->route('infor.view-infor');
+    }
 }

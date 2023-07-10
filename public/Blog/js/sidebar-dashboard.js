@@ -15,3 +15,10 @@ $('#img_logo').click(function() {
 $('#text_logo').click(function() {
     window.location.href = 'https://www.facebook.com/';
 });
+
+var elements = $('.profile_name, .job');
+elements.each(function() {
+    var width = $(this).width();
+    if (width > 170) $(this).addClass('truncate');
+});
+  

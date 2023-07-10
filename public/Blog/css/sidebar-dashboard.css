@@ -44,6 +44,10 @@
     justify-content: center;
     cursor: pointer;
 }
+.sidebar #show_sidebar:hover {
+    color: #FF291A;
+    transition: all 0.5s ease;
+}
 /* logo */
 .sidebar {
     position: fixed;
@@ -152,23 +156,26 @@
 }
 .sidebar .profile-details i{
     transition: all 0.5s ease;
-    color: #11101d;
+    /* color: #11101d; */
+    color: transparent;
 }
 .sidebar .profile-details:hover i {
     transition: all 0.5s ease;
     color: white;
 }
 .sidebar .profile-details i:hover {
-    color: red;
+    color: #FF291A;
 }
 .sidebar .profile-details #logout {
     margin-left: auto;
     transition: all 0.5s ease;
 }
 .sidebar .profile-details #logout i {
+    transition: all 0.5s ease;
     font-size: 22px !important;
 }
 .sidebar.close_sidebar .profile-details #logout {
+    transition: all 0.5s ease;
     margin: auto;
 }
 
@@ -176,21 +183,31 @@
     margin-left: -10px;
     width: 78px;
     /* justify-content: center; */
+    transition: all 0.5s ease;
 }
 .sidebar.close_sidebar .profile-details i{
     z-index: 999;
-    transition: all 0.5s ease;
+    transition: all 0.6s ease;
     color: white;
+    /* color: transparent; */
 }
 .sidebar.close_sidebar .profile-details i:hover{
-    color: red !important;
+    color: #FF291A !important;
 }
 .sidebar .profile-details .profile_name,
 .sidebar .profile-details .job {
     color: #fff;
-    font-size: 18px;
-    white-space: nowrap;
+    font-size: 14px;
+    white-space: nowrap; /* Ngăn chặn xuống dòng */
+    transition: all 0.5s ease;
 }
+.truncate {
+    /* thêm 3 chấm nếu đoạn text dài hơn 170px */
+    max-width: 170px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+  
 .sidebar.close_sidebar .profile-details .name-job {
     width: 0px;
     opacity: 0;
@@ -203,6 +220,7 @@
     transition: all 0.5s ease;
 }
 .sidebar .profile-details .name-job .job{
+    transition: all 0.5s ease;
     font-size: 12px;
 }
 /* CONTENT */
@@ -253,5 +271,9 @@
     margin: 0px !important;
     border: none !important;
     font-size: 0px !important;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
+}
+.sidebar.close_sidebar #logo #img_logo {
+    height: 0px;
+    transition: all 0.3s ease;
 }
