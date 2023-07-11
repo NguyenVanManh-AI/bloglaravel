@@ -12,6 +12,7 @@
             <span id="text_logo" >Blog Laravel</span>
             <span id="show_sidebar" ><i class="bx bx-menu"></i></span>
         </div>
+        <li><a href="{{ route('main.view-main') }}"><i class="fa-solid fa-house"></i><span class="link_name">Home</span></a></li> {{-- link đơn --}}
         <li>
             <div >
                 {{-- Mỗi collapse sẽ có id tương ứng của nó data-target="#collapseUser" và  id="collapseUser"--}}
@@ -45,6 +46,7 @@
                 </div>
             </div>
         </li>
+        <li><a href="#"><i class="fa-solid fa-circle-user"></i><span class="link_name">Personal interfaceT</span></a></li> {{-- link đơn --}}
         <li><a href="#"><i class="fa-solid fa-circle-question"></i><span class="link_name">Help</span></a></li> {{-- link đơn --}}
         <li><a href="#"><i class="fa-solid fa-circle-info"></i><span class="link_name">Comment</span></a></li>  {{-- link đơn --}}
         <li>
@@ -63,4 +65,6 @@
 </div>
 {{-- LƯU Ý : File JS phải để cuối để HTML CSS load hết đã rồi cuối cùng mới đến JS tránh client không hoạt động được --}}
 <script src="{{asset('Blog/js/sidebar-dashboard.js')}}"></script>
+{{-- Cách khác là nếu như không bỏ đoạn code js ở dưới thì phải thêm $(document).ready(function() { nghĩa là 
+    trang web load xong hết đã rồi mới chạy code js --}}
 @endsection

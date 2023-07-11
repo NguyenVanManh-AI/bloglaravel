@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomAuthController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BlogAuthController;
+use App\Http\Controllers\MainController;
 
 // Blog 
 // Auth 
@@ -64,6 +65,22 @@ Route::prefix('infor')->controller(BlogAuthController::class)->name('infor.')->g
         Route::post('/change-password', 'changePassword')->name('change-password');
     });
 });
+
+// Main 
+Route::prefix('main')->controller(MainController::class)->name('main.')->group(function () {
+    Route::get('/view', 'viewMain')->name('view-main');
+    Route::get('/ajax-update-comment', 'updateComment')->name('update-comment'); // ajax thì nên dùng GET thay vì dùng POST 
+    Route::get('/ajax-delete-comment', 'deleteComment')->name('delete-comment'); 
+    Route::get('/ajax-add-comment', 'addComment')->name('add-comment'); 
+});
+
+// giải thích : thực chất GET hay POST đều cũng chỉ là ta mượn một phương thức để lên được controller làm gì đó thôi 
+// nên get hay post cũng không quan trọng lắm (nếu không tính đến chuyện bảo mật)
+
+
+
+
+
 
 
 Route::prefix('article')->controller(ArticleController::class)->name('article.')->group(function () {

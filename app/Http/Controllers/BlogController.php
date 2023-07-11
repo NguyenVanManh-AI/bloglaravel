@@ -61,7 +61,7 @@ class BlogController extends Controller
         ]);
         if ($article) {
             Toastr::success('Thêm bài viết thành công!');
-            return redirect()->route('blog.add'); // Thay 'articles.index' bằng tên route hiển thị danh sách bài viết
+            return redirect()->back(); // Thay 'articles.index' bằng tên route hiển thị danh sách bài viết
         } else {
             Toastr::error('Thêm bài viết thất bại!');
             return redirect()->back()->withInput(); // Quay trở lại trang trước đó và giữ lại dữ liệu đã nhập

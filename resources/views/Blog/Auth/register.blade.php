@@ -175,6 +175,10 @@
                 </div>
                 <a class="d-block text-center mt-2 small" href="{{ route('login') }}">Have an account? Sign In</a>
               </form>
+              <hr class="my-4">
+              <div class="d-flex justify-content-center">
+                <a href="{{ route('main.view-main') }}" style="border-radius: 10px" type="button" class="btn btn-outline-primary"><i class="fa-solid fa-house"></i> Home</a>
+              </div>
             </div>
           </div>
         </div>

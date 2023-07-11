@@ -39,10 +39,16 @@
     <link rel="stylesheet" href="{{ asset('lib/richtexteditor/rte_theme_default.css') }} " />
     <script type="text/javascript" src="{{ asset('lib/richtexteditor/rte.js') }}"></script>
     <script type="text/javascript" src="{{ asset('lib/richtexteditor/plugins/all_plugins.js') }}"></script>
-
+    <style>
+        body.modal-open {
+            padding-right: 0px !important;
+        }
+        body {
+            color: #2c3e50;
+        }
+    </style>
 </head>
 <body>
-
     
     {{-- toastr --}}
     <script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
@@ -64,6 +70,8 @@
     {{-- bootstrap 5.0 --}}
     {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> --}}
 
+    {{-- Master js --}}
+    <script type="text/javascript" src="{{ asset('Blog/js/master.js') }}"></script>
     
 </body>
 </html>

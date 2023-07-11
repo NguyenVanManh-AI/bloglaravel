@@ -1794,3 +1794,296 @@ Fix lỗi Unique khi update
                 'gender' => 'required',
             ];
 ================================================================
+Trong Laravel không cần dùng Event Bus hay VueX hay Piania như bên Vuejs, vì nó tổ chức theo layouts 
+và tạo thành một khối thống nhất . Thực chất trang web chính là một file html rất lớn . 
+Nên để bắt sự kiện từ file này sang file kia thì ta chỉ cần khai báo đoạn js ở file to mà chứa cả 2 file đó là được . 
+Không nhất thiết phải là file master . Chỉ cần là file chứa cả file (phát và bắt sự kiện) đó là được . 
+Ứng dụng để thiết kế layout cho trang main . Search bài viết hoặc người dùng trên thanh header (file header) còn body (file body)
+thì hiển thị kết quả . 
+================================================================
+Khi mở thanh Debug bar lên thì có Views là nơi hiện tất cả các file html đang được load tại trang . 
+================================================================
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan make:model Comment -m -c
+Model created successfully.
+Created Migration: 2023_07_11_062239_create_comments_table
+Controller created successfully.
+
+C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php migrate
+=> table comments trong db tự thêm s 
+================================================================
+Query Model 
+public function viewMain(Request $request){
+
+    $articles = Article::all();
+    foreach($articles as $key => $article){
+        $num = count(Comment::where('id_article',$article->id)->get());
+        $articles[$key]->num_comment = $num;
+    }     
+    dd($articles);
+    return view('Blog.Main.ListArticles');
+}
+Tối ưu bằng cách : 
+    + Model Article thêm :
+        public function commentsCount(){
+            return $this->hasMany(Comment::class, 'id_article')->selectRaw('id_article, count(*) as count')->groupBy('id_article');
+        }
+
+    + Ngoài controller : 
+        $articles = Article::withCount('commentsCount')->paginate(6);
+        dd($articles);
+
+================================================================
+Không lan truyền sự kiện (phải click vào button mới được , click vào trúng thẻ i thì không được)
+    $(document).ready(function() {
+        $(".btn_setting").click(function() {
+        $(this).next(".show_setting").toggleClass("hidden");
+        });
+    
+        $(document).click(function(event) {
+        var target = $(event.target);
+        if (!target.hasClass("btn_setting") && !target.closest(".show_setting").length) {
+            $(".show_setting").addClass("hidden");
+        }
+        });
+    });
+
+Lan truyền sự kiện cho toàn bộ button (kể cả những thứ nằm trong đó như là thẻ i)
+    đoạn code trên chạy ổn rồi nhưng vấn đề là do               <button class="btn_setting" ><i class="fa-solid fa-ellipsis" ></i></button>
+    button chứa thẻ i nữa , mà khi tôi click vào trúng ngay thẻ i thì đoạn code trên không hoạt động , hãy sửa lại để toàn bộ button (Ngay cả thẻ i) cũng được 
+    ChatGPT
+    Để xử lý trường hợp khi click vào thẻ <i> bên trong button, bạn có thể sử dụng phương pháp sự kiện "bubbling" (lan truyền) của jQuery. Thay vì gắn sự kiện click trực tiếp cho .btn_setting, ta sẽ gắn sự kiện click cho document và sử dụng phương thức .closest() để xác định xem phần tử nào đã được click và xử lý nó. Dưới đây là đoạn mã sửa đổi:
+
+    javascript
+    Copy code
+    $(document).ready(function() {
+    $(document).on("click", function(event) {
+        var target = $(event.target);
+        if (!target.closest(".btn_setting").length && !target.closest(".show_setting").length) {
+        $(".show_setting").addClass("hidden");
+        }
+    });
+
+    $(".btn_setting").on("click", function() {
+        $(this).next(".show_setting").toggleClass("hidden");
+    });
+    });
+    Trong đoạn mã này, chúng ta đã thay đổi cách gắn sự kiện click cho .btn_setting bằng cách sử dụng .on() và sự kiện "bubbling" ($(document).on("click", function(event) { ... })). Khi click vào bất kỳ phần tử nào trong document, chúng ta sẽ kiểm tra nếu phần tử đó không thuộc .btn_setting và không thuộc .show_setting, thì ta thêm class "hidden" cho tất cả các phần tử .show_setting.
+    Bằng cách này, khi bạn click vào bất kỳ phần tử nào trong button (bao gồm cả thẻ <i>), đoạn mã sẽ vẫn hoạt động và ẩn .show_setting.
+================================================================
+Tóm lại : 
+    + Nếu là $(".btn_setting").click(function() thì nó sẽ không lan truyền sự kiện 
+    + Thay bằng on : $(document).on("click", function(event) thì nó sẽ lan truyền sự kiện 
+    => điểm khác nhau của 2 cái . 
+================================================================
+Trong rich text editor có cái thanh nằm dọc mà cứ hiện bên lề trái rất khó chịu => ẩn nó đi 
+    rte-floatpanel {
+        display: none !important;
+    }
+
+
+================================================================
+Get thuộc tính data từ một loại thẻ bất kì  
+    + Ta có : <div class="ajax_load_article" data-id_article="{{$article->id_article}}"></div>
+    + Code js : 
+        $('.ajax_load_article').on('click', function() {
+            var idArticle = $(this).data('id_article');
+            console.log(idArticle); 
+        }); 
+
+    + Note : Quy tắt đặt là : data-... (nghĩa là data- rồi đến gì đó)
+        ví dụ : data-id_article= hoặc data-id_user=" ,... 
+    + Khi lấy ra thì đây : var idArticle = $(this).data('id_article'); (lấy phần tên phía sau data thôi)
+================================================================
+Khi bấm kiểm tra thì mỗi style nào đều hiển thị rõ là của file css nào nên không lo gì cả . Muốn fix thì vào đó xem và 
+fix thôi . Không sợ nhiều file css quá thì tìm không ra . 
+================================================================
+$('.inlineFormInputGroup').keydown(function(event) {
+    if (event.which == 13) { // Kiểm tra mã phím là Enter (mã 13)
+        event.preventDefault(); // Ngăn chặn hành vi mặc định của phím Enter
+        var new_content_comment = $(this).val();
+        console.log(new_content_comment);
+        console.log(id_article); 
+        if(new_content_comment != ''){
+            $.ajax({
+                url: '/main/ajax-add-comment',
+                type: 'GET',
+                data: {
+                    id_article:id_article,
+                    new_content_comment: new_content_comment
+                },
+                success: function(response) {
+                    $("#list_comment_"+id_article).append(response.comment_element);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+        $(this).val('');
+    }
+});
+================================================================
+Fix lỗi không bắt được sự kiện đối với những element được add vào bằng append 
+    + https://stackoverflow.com/questions/52099861/event-listener-for-appended-html-elements-not-working
+    + Cùng 1 class những những element được load ngay khi tải trang thì bắt sự kiện bình thường 
+    + Còn những element được thêm vào sau bằng append thì không bắt sự kiện được 
+    + Cách fix là bọc đoạn code trong : 
+        $('body').on('click', '.announcement-delete-button', function (e) { /*Your code here*/ });
+
+    + Ví dụ : 
+        $(".btn_setting").on("click", function() {
+            var $showSetting = $(this).next(".show_setting");
+            $showSetting.toggleClass("hidden");
+            $(".btn_setting").not(this).next(".show_setting").addClass("hidden");
+        });
+
+    => Sẽ trở thành : 
+        $('body').on('click', '.btn_setting', function (e) {
+            var $showSetting = $(this).next(".show_setting");
+            $showSetting.toggleClass("hidden");
+            $(".btn_setting").not(this).next(".show_setting").addClass("hidden");
+        });
+
+================================================================
+Đây là đoạn code cũ : 
+<script>
+// show setting article  
+$(document).ready(function() {
+    $(document).on("click", function(event) {
+      var target = $(event.target);
+      if (!target.closest(".btn_setting").length && !target.closest(".show_setting").length) {
+        $(".show_setting").addClass("hidden");
+      }
+    });
+    $(".btn_setting").on("click", function() {
+      var $showSetting = $(this).next(".show_setting");
+      $showSetting.toggleClass("hidden");
+      $(".btn_setting").not(this).next(".show_setting").addClass("hidden");
+    });
+});
+
+// show setting comment 
+$(document).ready(function() {
+    $(document).on("click", function(event) {
+      var target = $(event.target);
+      if (!target.closest(".btn_setting_cmt").length && !target.closest(".show_setting_cmt").length) {
+        $(".show_setting_cmt").addClass("hidden");
+      }
+    });
+    $(".btn_setting_cmt").on("click", function() {
+        console.log('fix bif');
+      var $showSetting = $(this).next(".show_setting_cmt");
+      $showSetting.toggleClass("hidden");
+      $(".btn_setting_cmt").not(this).next(".show_setting_cmt").addClass("hidden");
+    });
+});
+
+// ẩn hiện form edit comment 
+$('.li_edit_comment').on('click', function() {
+    var str = $(this).attr('id');
+    var parts = str.split('_');
+    var id_comment = parts[2];
+    $('#infor_comment_'+id_comment+', #form_edit_'+id_comment).toggleClass('hidden');
+});
+
+// cancel edit 
+$('.btn_cancel').on('click', function() {
+    var str = $(this).attr('id');
+    var parts = str.split('_');
+    var id_comment = parts[2];
+    $('#infor_comment_'+id_comment+', #form_edit_'+id_comment).toggleClass('hidden');
+});
+
+// btn save 
+$('.btn_save').on('click', function() {
+    var str = $(this).attr('id');
+    var parts = str.split('_');
+    var id_comment = parts[2];
+    var new_content_comment = $('#textarea_'+id_comment).val();
+    $.ajax({
+        url: '/main/ajax-update-comment',
+        type: 'GET',
+        data: {
+          id_comment: id_comment,
+          new_content_comment: new_content_comment
+        },
+        success: function(response) {
+          // Xử lý kết quả thành công
+          console.log(response);
+        },
+        error: function(xhr) {
+          // Xử lý lỗi
+          console.log(xhr.responseText);
+        }
+    });
+    $('#comment_content_'+id_comment).html(new_content_comment);
+    $('#infor_comment_'+id_comment+', #form_edit_'+id_comment).toggleClass('hidden');
+});
+
+// ajax thì nên dùng GET thay vì dùng POST 
+// giải thích : thực chất GET hay POST đều cũng chỉ là ta mượn một phương thức để lên được controller làm gì đó thôi 
+// nên get hay post cũng không quan trọng lắm (nếu không tính đến chuyện bảo mật)
+
+// delete 
+$('.li_delete').on('click', function() {
+    var str = $(this).attr('id');
+    var parts = str.split('_');
+    var id_comment = parts[2];
+    $.ajax({
+        url: '/main/ajax-delete-comment',
+        type: 'GET',
+        data: {
+          id_comment: id_comment
+        },
+        success: function(response) {
+          // Xử lý kết quả thành công
+          console.log(response);
+        },
+        error: function(xhr) {
+          // Xử lý lỗi
+          console.log(xhr.responseText);
+        }
+    });
+    $('#comment_article_'+id_comment).addClass('hidden');
+});
+
+// add Comment
+// ajax load content article and comment 
+// Ta có : <div class="ajax_load_article" data-id_article="{{$article->id_article}}"
+var id_article = '';
+$('.ajax_load_article').on('click', function() {
+    id_article = $(this).data('id_article');
+}); 
+$('.inlineFormInputGroup').keydown(function(event) {
+    if (event.which == 13) { // Kiểm tra mã phím là Enter (mã 13)
+        event.preventDefault(); // Ngăn chặn hành vi mặc định của phím Enter
+        var new_content_comment = $(this).val();
+        console.log(new_content_comment);
+        console.log(id_article); 
+        if(new_content_comment != ''){
+            $.ajax({
+                url: '/main/ajax-add-comment',
+                type: 'GET',
+                data: {
+                    id_article:id_article,
+                    new_content_comment: new_content_comment
+                },
+                success: function(response) {
+                    $("#list_comment_"+id_article).append(response.comment_element);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+        $(this).val('');
+    }
+});
+</script>
+================================================================
+Có thể không load lại trang khi thêm xóa sửa bằng cách dùng ajax  
+    + Thêm thì dùng append 
+    + Sửa thì set lại giá trị innerHTML hoặc value cho nó 
+    + Xóa thì display none đi 
+    => Đó là trên giao diện còn trên server thì ajax cũng đã gọi đến controller và thực hiện các việc cần làm rồi . 
+================================================================

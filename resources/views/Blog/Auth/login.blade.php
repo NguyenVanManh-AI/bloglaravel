@@ -63,6 +63,11 @@
                     </a>
                 </div>
                 </form>
+                <hr class="my-4">
+                <div class="d-flex justify-content-center">
+                  <a href="{{ route('main.view-main') }}" style="border-radius: 10px" type="button" class="btn btn-outline-primary"><i class="fa-solid fa-house"></i> Home</a>
+                </div>
+
                 <!-- Modal -->
                 <div class="modal fade" id="modalForGotPassword" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                   <div class="modal-dialog" role="document">
