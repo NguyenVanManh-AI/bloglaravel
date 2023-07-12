@@ -28,7 +28,7 @@
 </style>
 <div id="big_main">
     <div id="left_main" >
-    
+        @include('Blog.Main.Left')
     </div>
     <div id="middle_main">
 

@@ -140,6 +140,47 @@ class MainController extends Controller
         ]);
     }
     
+    public function searchLeft(Request $request){
+
+        $search_user = null;
+        $search_article = null;
+        $search_text = $request->search_text;
+        $search_user = User::where('name', 'like', '%' . $search_text . '%')->take(10)->get();
+        // ->take(10) => lấy tối đa là 10 
+        if(count($search_user) < 10){ // nếu ít hơn 10 dòng thì search tiếp vào article cho đủ 10 dòng 
+            $search_article = Article::where('title', 'like', '%' . $search_text . '%')->take(10-count($search_user))->get();
+        }
+        $result_search = '';
+        if($search_user || $search_article){
+            $result_search .= '<div class="item_user_article">';
+            if($search_user){
+                foreach ($search_user as $user){
+                    $result_search .= '<div class="item_user" data-id_user="'.$user->id.'">';
+                        if(Str::startsWith($user->avatar, 'http')) {
+                            $result_search .= '<img alt="Avatar" src="'.$user->avatar.'" >';
+                        }
+                        else {
+                            $result_search .= '<img alt="Avatar" src="http://localhost:8000/' . $user->avatar .'" >';
+                        }
+                        $result_search .= '<span> ' . $user->name .'</span></div>';
+                }
+            }
+            if($search_article){
+                foreach ($search_article as $article){
+                    $result_search .= '<div class="item_article" data-id_article="'.$article->id.'" >';
+                    $result_search .= '<i class="fa-solid fa-blog" style="margin-right: 8px;"></i>'. $article->title.'</div>';
+                }
+            }
+            $result_search .= '</div>';
+        }
+        if(count($search_user) == 0 && count($search_article) == 0){
+            $result_search = '<div class="no_result"><i class="fa-solid fa-magnifying-glass"></i> No result</div>';
+        }
+        return response()->json([
+            'result_search' => $result_search
+        ]);
+    }
+
     public function personalPage(Request $request,$id_user){
         return view('Blog.Main.PersonalPage',['id_user'=>$request->id_user]);
     }
