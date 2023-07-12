@@ -101,7 +101,7 @@
                 <div class="modal-content" style="background-color: transparent;border: none;">
                     <div id="outner_modal">
                         <div id="min_modal_content">
-                            <a href=""><span><i class="fa-solid fa-user-check"></i></span>{{auth()->user()->name}}</a>
+                            <a href="{{ route('main.personal-page', ['id_user' => auth()->user()->id]) }}"><span><i class="fa-solid fa-user-check"></i></span>{{auth()->user()->name}}</a>
                             <a href="{{ route('infor.view-infor') }}"><span><i class="fa-solid fa-gear"></i></span> Personal page </a>
                             <a href=""><span><i class="fa-solid fa-question"></i></span> Help & Support </a>
                             <a href=""><span><i class="fa-solid fa-info"></i></span> Comments </a>

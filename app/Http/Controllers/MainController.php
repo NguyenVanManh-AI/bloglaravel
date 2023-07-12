@@ -202,7 +202,21 @@ class MainController extends Controller
     }
 
     public function articleDetails(Request $request,$id_article){
-        return view('Blog.Main.ArticleDetails',['id_article'=>$request->id_article]);
+        $articles = Article::where('articles.id',$id_article)
+        ->join('users', 'users.id', '=', 'articles.id_user')
+        ->select('articles.*', 'users.*', 'articles.id as id_article', 'users.id as id_user')
+        ->withCount('commentsCount') // chú ý withCount phải bỏ sau select
+        ->orderBy('articles.id','DESC')
+        ->get();
+        foreach ($articles as $article) {
+            $comments = Comment::where('id_article', $article->id_article)
+                ->join('users', 'users.id', '=', 'comments.id_user')
+                ->select('comments.*', 'users.*', 'comments.id as id_comment', 'users.id as id_user')
+                ->orderBy('comments.id','DESC')
+                ->get();
+            $article->comments = $comments;
+        }
+        return view('Blog.Main.ArticleDetails',['articles'=>$articles]);
     }
 
     

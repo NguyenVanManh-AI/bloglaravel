@@ -46,7 +46,7 @@
                 </div>
             </div>
         </li>
-        <li><a href="#"><i class="fa-solid fa-circle-user"></i><span class="link_name">Personal interfaceT</span></a></li> {{-- link đơn --}}
+        <li><a href="{{ route('main.personal-page', ['id_user' => auth()->user()->id]) }}"><i class="fa-solid fa-circle-user"></i><span class="link_name">Personal interface</span></a></li> {{-- link đơn --}}
         <li><a href="#"><i class="fa-solid fa-circle-question"></i><span class="link_name">Help</span></a></li> {{-- link đơn --}}
         <li><a href="#"><i class="fa-solid fa-circle-info"></i><span class="link_name">Comment</span></a></li>  {{-- link đơn --}}
         <li>
