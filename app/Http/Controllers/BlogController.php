@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\RequestArticle;
 use App\Models\Article;
+use App\Models\Comment;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\Auth;
@@ -101,6 +102,9 @@ class BlogController extends Controller
         $article = Article::where('id',$request->id)->first();
         if($user->id == $article->id_user){
         // if ($request->user()->can('delete', $article)) {
+            // Xóa comment của bài viết đó 
+            $comments = Comment::where('id_article',$article->id)->get();
+            $comments->delete();
             // Xóa bài viết
             $article->delete();
             Toastr::success('Xóa bài viết thành công !');

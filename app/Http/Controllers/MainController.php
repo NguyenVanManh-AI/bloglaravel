@@ -182,7 +182,23 @@ class MainController extends Controller
     }
 
     public function personalPage(Request $request,$id_user){
-        return view('Blog.Main.PersonalPage',['id_user'=>$request->id_user]);
+        $personal = User::where('id',$id_user)->first();
+        
+        $articles = Article::where('id_user',$personal->id)
+        ->join('users', 'users.id', '=', 'articles.id_user')
+        ->select('articles.*', 'users.*', 'articles.id as id_article', 'users.id as id_user')
+        ->withCount('commentsCount') // chú ý withCount phải bỏ sau select
+        ->orderBy('articles.id','DESC')
+        ->paginate(6);
+        foreach ($articles as $article) {
+            $comments = Comment::where('id_article', $article->id_article)
+                ->join('users', 'users.id', '=', 'comments.id_user')
+                ->select('comments.*', 'users.*', 'comments.id as id_comment', 'users.id as id_user')
+                ->orderBy('comments.id','DESC')
+                ->get();
+            $article->comments = $comments;
+        }
+        return view('Blog.Main.PersonalPage',['articles'=>$articles,'personal' => $personal]);
     }
 
     public function articleDetails(Request $request,$id_article){
