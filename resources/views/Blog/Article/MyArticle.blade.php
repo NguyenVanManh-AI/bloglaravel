@@ -30,12 +30,12 @@
                 {{-- <td>{{ $article->content }}</td> --}}
                 <td>{{ \Illuminate\Support\Str::limit($article->title, 69, '...') }}</td>
                 <td>
-                    <a href="{{ route('blog.show', ['id' => $article->id_article]) }}" class="btn btn-outline-primary">
+                    <a href="{{ route('blog.show', ['id' => $article->id]) }}" class="btn btn-outline-primary">
                         <i class="fa-solid fa-eye"></i> View
                     </a>
                 </td>
                 <td>
-                    <a href="{{ route('blog.show-edit', ['id' => $article->id_article]) }}" class="btn btn-outline-primary">
+                    <a href="{{ route('blog.show-edit', ['id' => $article->id]) }}" class="btn btn-outline-primary">
                         <i class="fa-solid fa-pen-to-square"></i> Edit
                     </a>
                 </td>

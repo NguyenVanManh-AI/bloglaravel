@@ -173,5 +173,38 @@
     <div id="right_main" >
         @include('Blog.Main.Right')
     </div>
+    <style>
+        #toTop {
+          /* display: none; */
+          position: fixed !important;
+          bottom: 30px !important;
+        }
+        /* .show {
+          display: block;
+        } */
+        
+      </style>
+      <div id="toTop" v-if="showButton"><i class="fa-solid fa-chevron-up"></i></div>
+      <script>
+        $('.logo_blog').on('click', function() {
+          window.location.href = "/main/view";
+        }); 
+
+        var btn = $('#button');
+
+        // $(window).scroll(function() {
+        //   if ($('#dashboard_user').scrollTop() > 300) {
+        //     $('#toTop').addClass('show');
+        //   } else {
+        //     $('#toTop').removeClass('show');
+        //   }
+        // });
+
+        $('#toTop').on('click', function(e) {
+          e.preventDefault();
+          $('html, body').animate({scrollTop:0}, '300');
+          $('#dashboard_user').animate({scrollTop:0}, '300');
+        });
+      </script>
 </div>
 @endsection

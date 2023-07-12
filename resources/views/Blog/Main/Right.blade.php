@@ -19,7 +19,7 @@
     #show_modal img {
         width: 40px;
         height: 40px;
-        object-fit: contain;
+        /* object-fit: contain; */
         object-position: center;
         border-radius: 40px;
         margin-left: 15px;
@@ -83,6 +83,9 @@
         align-items: center;
         justify-content: center;
         margin-right: 10px;
+    }
+    #modalUser.modal.fade {
+        background-color: transparent !important;
     }
 </style>
 <div id="right_min" >

@@ -60,10 +60,54 @@
         @include('Blog.Main.PersonalMiddle')
 
     </div>
+      {{-- <div class="col-2" style="background-color: #F2F4F6;"></div> --}}
+      <style>
+        .logo_blog {
+          width: 50px;
+          height: 50px;
+          cursor: pointer;
+          position: fixed !important;
+          bottom: 30px !important;
+        }
+        .logo_blog img{
+          width: 100%;
+          object-fit: cover;
+        }
 
-      {{-- <div class="col-2" style="background-color: #F2F4F6;"></div>
-      <div class="logo_blog" @click="goMain"><img :src="logo"/></div>
-      <div id="toTop" @click="scrollToTop" v-if="showButton"><i class="fa-solid fa-chevron-up"></i></div> --}}
+        #toTop {
+          /* display: none; */
+          position: fixed !important;
+          bottom: 30px !important;
+        }
+        /* .show {
+          display: block;
+        } */
+        
+      </style>
+      <div class="logo_blog" ><img src="{{asset('Blog/image/logo.png')}}"/></div>
+      <div id="toTop" v-if="showButton"><i class="fa-solid fa-chevron-up"></i></div>
+      <script>
+        $('.logo_blog').on('click', function() {
+          window.location.href = "/main/view";
+        }); 
+
+        var btn = $('#button');
+
+        // $(window).scroll(function() {
+        //   if ($('#dashboard_user').scrollTop() > 300) {
+        //     $('#toTop').addClass('show');
+        //   } else {
+        //     $('#toTop').removeClass('show');
+        //   }
+        // });
+
+        $('#toTop').on('click', function(e) {
+          e.preventDefault();
+          $('html, body').animate({scrollTop:0}, '300');
+          $('#dashboard_user').animate({scrollTop:0}, '300');
+          $('.main_content').animate({scrollTop:0}, '300');
+        });
+      </script>
     </div>
   </div>
 @endsection

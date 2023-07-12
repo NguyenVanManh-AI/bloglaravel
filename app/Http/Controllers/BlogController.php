@@ -103,8 +103,10 @@ class BlogController extends Controller
         if($user->id == $article->id_user){
         // if ($request->user()->can('delete', $article)) {
             // Xóa comment của bài viết đó 
-            $comments = Comment::where('id_article',$article->id)->get();
-            $comments->delete();
+            $comments = Comment::where('id_article', $article->id)->get();
+            foreach ($comments as $comment) {
+                $comment->delete();
+            }
             // Xóa bài viết
             $article->delete();
             Toastr::success('Xóa bài viết thành công !');
