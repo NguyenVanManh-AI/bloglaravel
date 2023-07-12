@@ -72,6 +72,8 @@ Route::prefix('main')->controller(MainController::class)->name('main.')->group(f
     Route::get('/ajax-update-comment', 'updateComment')->name('update-comment'); // ajax thì nên dùng GET thay vì dùng POST 
     Route::get('/ajax-delete-comment', 'deleteComment')->name('delete-comment'); 
     Route::get('/ajax-add-comment', 'addComment')->name('add-comment'); 
+    Route::get('/personal-page/{id_user}', 'personalPage')->name('personal-page');
+    Route::get('/article-details/{id_article}', 'articleDetails')->name('article-details');
 });
 
 // giải thích : thực chất GET hay POST đều cũng chỉ là ta mượn một phương thức để lên được controller làm gì đó thôi 

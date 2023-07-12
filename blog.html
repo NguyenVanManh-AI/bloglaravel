@@ -2081,9 +2081,184 @@ $('.inlineFormInputGroup').keydown(function(event) {
 });
 </script>
 ================================================================
+Đây là đoạn code mới sau khi fix 
+<script>
+    var id_article = '';
+$('.ajax_load_article').on('click', function() {
+    id_article = $(this).data('id_article');
+}); 
+
+// show setting article 
+$(document).ready(function() {
+    $(document).on("click", function(event) {
+      var target = $(event.target);
+      if (!target.closest(".btn_setting").length && !target.closest(".show_setting").length) {
+        $(".show_setting").addClass("hidden");
+      }
+    });
+    $(".btn_setting").on("click", function() {
+      var $showSetting = $(this).next(".show_setting");
+      $showSetting.toggleClass("hidden");
+      $(".btn_setting").not(this).next(".show_setting").addClass("hidden");
+    });
+});
+
+// show setting comment  
+$(document).ready(function() {
+    $(document).on("click", function(event) {
+      var target = $(event.target);
+      if (!target.closest(".btn_setting_cmt").length && !target.closest(".show_setting_cmt").length) {
+        $(".show_setting_cmt").addClass("hidden");
+      }
+    });
+});
+$('body').on('click', '.btn_setting_cmt', function (e) {
+    var $showSetting = $(this).next(".show_setting_cmt");
+    $showSetting.toggleClass("hidden");
+    $(".btn_setting_cmt").not(this).next(".show_setting_cmt").addClass("hidden");
+});
+
+// ẩn hiện form edit comment 
+$('body').on('click', '.li_edit_comment', function (e) {
+    var str = $(this).attr('id');
+    var parts = str.split('_');
+    var id_comment = parts[2];
+    $('#infor_comment_'+id_comment+', #form_edit_'+id_comment).toggleClass('hidden');
+    $('#textarea_'+id_comment).val($('#comment_content_'+id_comment).html());
+});
+
+// cancel edit 
+$('body').on('click', '.btn_cancel', function (e) {
+    var str = $(this).attr('id');
+    var parts = str.split('_');
+    var id_comment = parts[2];
+    $('#infor_comment_'+id_comment+', #form_edit_'+id_comment).toggleClass('hidden');
+});
+
+// btn save 
+$('body').on('click', '.btn_save', function (e) {
+    var str = $(this).attr('id');
+    var parts = str.split('_');
+    var id_comment = parts[2];
+    var new_content_comment = $('#textarea_'+id_comment).val();
+    $.ajax({
+        url: '/main/ajax-update-comment',
+        type: 'GET',
+        data: {
+          id_comment: id_comment,
+          new_content_comment: new_content_comment
+        },
+        success: function(response) {
+          // Xử lý kết quả thành công
+          console.log(response);
+        },
+        error: function(xhr) {
+          // Xử lý lỗi
+          console.log(xhr.responseText);
+        }
+    });
+    $('#comment_content_'+id_comment).html(new_content_comment);
+    $('#infor_comment_'+id_comment+', #form_edit_'+id_comment).toggleClass('hidden');
+});
+
+// ajax thì nên dùng GET thay vì dùng POST 
+// giải thích : thực chất GET hay POST đều cũng chỉ là ta mượn một phương thức để lên được controller làm gì đó thôi 
+// nên get hay post cũng không quan trọng lắm (nếu không tính đến chuyện bảo mật)
+
+// set number comment 
+function addComment() {
+    var str = $('#number_comment_'+id_article).html();
+    var number = parseInt(str); // ví dụ chuỗi là "9 Comments"; thì chỉ còn lại 9 (nó sẽ tự bỏ đi cái không phải chuỗi)
+    number = number + 1 ; 
+    $('#number_comment_'+id_article).html(number+' Comments');
+}
+
+function deleteComment() {
+    var str = $('#number_comment_'+id_article).html();
+    var number = parseInt(str); // ví dụ chuỗi là "9 Comments"; thì chỉ còn lại 9 (nó sẽ tự bỏ đi cái không phải chuỗi)
+    number = number - 1 ; 
+    $('#number_comment_'+id_article).html(number+' Comments');
+}
+
+// delete 
+$('body').on('click', '.li_delete', function (e) {
+    var str = $(this).attr('id');
+    var parts = str.split('_');
+    var id_comment = parts[2];
+    $.ajax({
+        url: '/main/ajax-delete-comment',
+        type: 'GET',
+        data: {
+          id_comment: id_comment
+        },
+        success: function(response) {
+          // Xử lý kết quả thành công
+          console.log(response);
+        },
+        error: function(xhr) {
+          // Xử lý lỗi
+          console.log(xhr.responseText);
+        }
+    });
+    deleteComment();
+    $('#comment_article_'+id_comment).addClass('hidden');
+});
+
+// add Comment
+// ajax load content article and comment 
+// Ta có : <div class="ajax_load_article" data-id_article="{{$article->id_article}}"
+
+$('body').on('keydown', '.inlineFormInputGroup', function (event) {
+    if (event.which == 13) { // Kiểm tra mã phím là Enter (mã 13)
+        event.preventDefault(); // Ngăn chặn hành vi mặc định của phím Enter
+        var new_content_comment = $(this).val();
+        // console.log(new_content_comment);
+        // console.log(id_article); 
+        if(new_content_comment != ''){
+            $.ajax({
+                url: '/main/ajax-add-comment',
+                type: 'GET',
+                data: {
+                    id_article:id_article,
+                    new_content_comment: new_content_comment
+                },
+                success: function(response) {
+                    $("#list_comment_"+id_article).append(response.comment_element);
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+            addComment();
+        }
+        $(this).val('');
+    }
+});
+</script>
+================================================================
 Có thể không load lại trang khi thêm xóa sửa bằng cách dùng ajax  
     + Thêm thì dùng append 
     + Sửa thì set lại giá trị innerHTML hoặc value cho nó 
     + Xóa thì display none đi 
     => Đó là trên giao diện còn trên server thì ajax cũng đã gọi đến controller và thực hiện các việc cần làm rồi . 
+================================================================
+Nói chung là có nhiều cách 
+    + Ví dụ như code chức năng show and hidden setting article thì có 2 cách 
+        + 1 Là code theo kiểu tổng quá . dùng parent và next các kiểu để xác định cái được click ,...
+        + 2 Là dùng keo kiểu render ra một load id , ví dụ id="li_edit_{{$article->id_article}}"
+        sau đó click vào cái nào thì tách chuỗi ra ,... 
+            // cancel edit 
+            $('body').on('click', '.btn_cancel', function (e) {
+                var str = $(this).attr('id');
+                var parts = str.split('_');
+                var id_comment = parts[2];
+                $('#infor_comment_'+id_comment+', #form_edit_'+id_comment).toggleClass('hidden');
+            });
+
+    + Cách 1 thì không render ra nhiều html css nhưng code lâu hơn tại vì suy nghĩ lâu hơn chút 
+    + Cách 2 thì cứ thể mà code không suy nghĩ nhiều nên nhanh 
+    => so sánh thì nên dùng cách 2 tại vì render ra thêm chút html thì không làm chậm trang web được mà ưu tiên code nhanh . 
+
+Đối với Modal Article Details cũng thế . Cũng có 2 cách là render ra nhiều và chỉ render 1 lần modal còn lại nội dung 
+cái nào thì dùng ajax lấy cái đấy . Thấy cách 1 là ok nhất . Tại vì nó cũng khỏe .  
 ================================================================

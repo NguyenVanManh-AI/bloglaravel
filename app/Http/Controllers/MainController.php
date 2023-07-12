@@ -109,14 +109,14 @@ class MainController extends Controller
             $comment_element .= '<p class="author" ><i class="fa-solid fa-at"></i> Author</p>';
         }
         $comment_element .= '
-                    <p class="infor_fullname_comment" @click="goInforAccount(comment.id_user)">'.$user->name.'</p>
+                    <p class="infor_fullname_comment" data-id_user="'.$comment->id_user.'" >'.$user->name.'</p>
                     <p id="comment_content_'.$comment->id.'" class="comment_content infor_created_comment">'.$comment->content.'</p>
                 </div>
             </div>
             <div class="setting_cmt" >
                 <button class="btn_setting_cmt" ><i class="fa-solid fa-ellipsis"></i></button>
                 <div class="show_setting_cmt hidden" >
-                    <li id="li_edit_'.$comment->id.'" class="li_edit li_edit_comment" @click="showEditModal(comment)"><span class="setting_icon"><i class="fa-solid fa-pen-to-square"></i></span> <span>Edit Comment</span></li>
+                    <li id="li_edit_'.$comment->id.'" class="li_edit li_edit_comment" ><span class="setting_icon"><i class="fa-solid fa-pen-to-square"></i></span> <span>Edit Comment</span></li>
                     <li class="li_delete" id="li_delete_'.$comment->id.'"><span class="setting_icon"><i class="fa-solid fa-trash"></i></span> <span>Delete Comment</span></li>
                 </div>
             </div>
@@ -140,7 +140,14 @@ class MainController extends Controller
         ]);
     }
     
-    
+    public function personalPage(Request $request,$id_user){
+        return view('Blog.Main.PersonalPage',['id_user'=>$request->id_user]);
+    }
+
+    public function articleDetails(Request $request,$id_article){
+        return view('Blog.Main.ArticleDetails',['id_article'=>$request->id_article]);
+    }
+
     
 
 }

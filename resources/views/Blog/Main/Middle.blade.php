@@ -58,8 +58,8 @@
         </div>
         <div class="infor_article">
           <div class="infor_left">
-            <p class="infor_fullname" >{{$article->name}}</p>
-            <p class="infor_created"  >{{$article->created_at}}</p>
+            <p class="infor_fullname" data-id_user="{{$article->id_user}}" >{{$article->name}}</p>
+            <p class="infor_created" data-id_article="{{$article->id_article}}">{{$article->created_at}}</p>
           </div>
             @if(auth()->check()){{-- nếu chưa đăng nhập --}}
           <div class="infor_right" >
@@ -95,7 +95,7 @@
         </div>
       </div>
       <div class="footer_article">
-        <div class="footer_number_comment ajax_load_article" data-id_article="{{$article->id_article}}" data-toggle="modal" data-target="#modalArticleDetail_{{$article->id_article}}" >
+        <div id="number_comment_{{$article->id_article}}" class="footer_number_comment ajax_load_article" data-id_article="{{$article->id_article}}" data-toggle="modal" data-target="#modalArticleDetail_{{$article->id_article}}" >
             {{$article->comments_count_count}} Comments
         </div>
         <div class="footer_comment_article">
@@ -123,8 +123,8 @@
                       </div>
                       <div class="infor_article">
                         <div class="infor_left">
-                          <p class="infor_fullname" >{{$article->name}}</p>
-                          <p class="infor_created"  >{{$article->created_at}}</p>
+                          <p class="infor_fullname" data-id_user="{{$article->id_user}}">{{$article->name}}</p>
+                          <p class="infor_created" data-id_article="{{$article->id_article}}" >{{$article->created_at}}</p>
                         </div>
                         @if(auth()->check()){{-- nếu chưa đăng nhập --}}
                         <div class="infor_right" >
@@ -176,16 +176,16 @@
                                         @if($comment->id_user == $article->id_user)
                                         <p class="author" ><i class="fa-solid fa-at"></i> Author</p>
                                         @endif
-                                        <p class="infor_fullname_comment" @click="goInforAccount(comment.id_user)">{{ $comment->name }}</p>
+                                        <p class="infor_fullname_comment" data-id_user="{{$comment->id_user}}" >{{ $comment->name }}</p>
                                         <p id="comment_content_{{$comment->id_comment}}" class="comment_content infor_created_comment">{{ $comment->content }}</p>
                                     </div>
                                 </div>
                                 @if(auth()->check())
                                 <div class="setting_cmt" >
-                                    <button class="btn_setting_cmt" @click="showSetting(index)"><i class="fa-solid fa-ellipsis" ></i></button>
+                                    <button class="btn_setting_cmt" ><i class="fa-solid fa-ellipsis" ></i></button>
                                     <div class="show_setting_cmt hidden" >
                                     @if($comment->id_user == auth()->user()->id)
-                                    <li id="li_edit_{{$comment->id_comment}}" class="li_edit li_edit_comment" @click="showEditModal(comment)"><span class="setting_icon"><i class="fa-solid fa-pen-to-square"></i></span> <span>Edit Comment</span></li>
+                                    <li id="li_edit_{{$comment->id_comment}}" class="li_edit li_edit_comment" ><span class="setting_icon"><i class="fa-solid fa-pen-to-square"></i></span> <span>Edit Comment</span></li>
                                     <li class="li_delete" id="li_delete_{{$comment->id_comment}}" ><span class="setting_icon"><i class="fa-solid fa-trash"></i></span> <span>Delete Comment</span></li>
                                     @else 
                                     <li class="li_report" ><span class="setting_icon"><i class="fa-solid fa-flag"></i></span> <span>Report Comment</span></li>

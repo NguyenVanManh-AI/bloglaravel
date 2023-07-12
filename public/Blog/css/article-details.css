@@ -161,7 +161,7 @@
     font-weight: bold;
   }
   .infor_fullname:hover {
-    text-decoration: underline;
+    /* text-decoration: underline; */
     cursor: pointer;
   }
   .infor_created {
@@ -285,7 +285,7 @@
     font-size: 14px;
   }
   .infor_fullname_comment:hover {
-    text-decoration: underline;
+    /* text-decoration: underline; */
     cursor: pointer;
   }
   .infor_created_comment {

@@ -1,3 +1,8 @@
+var id_article = '';
+$('.ajax_load_article').on('click', function() {
+    id_article = $(this).data('id_article');
+}); 
+
 // show setting article 
 $(document).ready(function() {
     $(document).on("click", function(event) {
@@ -34,6 +39,7 @@ $('body').on('click', '.li_edit_comment', function (e) {
     var parts = str.split('_');
     var id_comment = parts[2];
     $('#infor_comment_'+id_comment+', #form_edit_'+id_comment).toggleClass('hidden');
+    $('#textarea_'+id_comment).val($('#comment_content_'+id_comment).html());
 });
 
 // cancel edit 
@@ -74,6 +80,21 @@ $('body').on('click', '.btn_save', function (e) {
 // giải thích : thực chất GET hay POST đều cũng chỉ là ta mượn một phương thức để lên được controller làm gì đó thôi 
 // nên get hay post cũng không quan trọng lắm (nếu không tính đến chuyện bảo mật)
 
+// set number comment 
+function addComment() {
+    var str = $('#number_comment_'+id_article).html();
+    var number = parseInt(str); // ví dụ chuỗi là "9 Comments"; thì chỉ còn lại 9 (nó sẽ tự bỏ đi cái không phải chuỗi)
+    number = number + 1 ; 
+    $('#number_comment_'+id_article).html(number+' Comments');
+}
+
+function deleteComment() {
+    var str = $('#number_comment_'+id_article).html();
+    var number = parseInt(str); // ví dụ chuỗi là "9 Comments"; thì chỉ còn lại 9 (nó sẽ tự bỏ đi cái không phải chuỗi)
+    number = number - 1 ; 
+    $('#number_comment_'+id_article).html(number+' Comments');
+}
+
 // delete 
 $('body').on('click', '.li_delete', function (e) {
     var str = $(this).attr('id');
@@ -94,18 +115,13 @@ $('body').on('click', '.li_delete', function (e) {
           console.log(xhr.responseText);
         }
     });
+    deleteComment();
     $('#comment_article_'+id_comment).addClass('hidden');
 });
 
 // add Comment
-
 // ajax load content article and comment 
 // Ta có : <div class="ajax_load_article" data-id_article="{{$article->id_article}}"
-
-var id_article = '';
-$('.ajax_load_article').on('click', function() {
-    id_article = $(this).data('id_article');
-}); 
 
 $('body').on('keydown', '.inlineFormInputGroup', function (event) {
     if (event.which == 13) { // Kiểm tra mã phím là Enter (mã 13)
@@ -128,6 +144,7 @@ $('body').on('keydown', '.inlineFormInputGroup', function (event) {
                     console.log(xhr.responseText);
                 }
             });
+            addComment();
         }
         $(this).val('');
     }
@@ -157,3 +174,22 @@ $('body').on('keydown', '.inlineFormInputGroup', function (event) {
 //         });
 
 // ================================================================
+
+
+// goto personalPage
+$('.infor_fullname').on('click', function() {
+    idUser = $(this).data('id_user');
+    window.location.href = "/main/personal-page/"+idUser;
+}); 
+
+$('body').on('click', '.infor_fullname_comment', function (event) {
+    idUser = $(this).data('id_user');
+    window.location.href = "/main/personal-page/"+idUser;
+}); 
+
+// goto Article Details 
+$('.infor_created').on('click', function() {
+    idArticle = $(this).data('id_article');
+    window.location.href = "/main/article-details/"+idArticle;
+}); 
+
