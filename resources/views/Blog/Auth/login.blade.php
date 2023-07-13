@@ -32,7 +32,7 @@
                     <div class="col-7 p-0">
                       <div class="ml-3 g-recaptcha" data-sitekey="{{ env('GOOGLE_RECAPTCHA_KEY') }}"></div>
                       @if ($errors->has('g-recaptcha-response'))
-                          <span class="text-danger">{{ $errors->first('g-recaptcha-response') }}</span>
+                          <span class="text-danger ml-3">{{ $errors->first('g-recaptcha-response') }}</span>
                       @endif
                     </div>
                     <div class="col-5">
