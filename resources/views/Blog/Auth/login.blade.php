@@ -1,5 +1,11 @@
 @extends('Blog.Layouts.Master')
 @section('content')
+<style>
+  /* fix box-show che label của librayry has-float-label */
+  .form-control:focus {
+    box-shadow: none; 
+  }
+</style>
 <div class="container-fluid ps-md-0">
     <div class="row g-0">
       <div class="d-none d-md-flex col-md-4 col-lg-6 bg-image"></div>
