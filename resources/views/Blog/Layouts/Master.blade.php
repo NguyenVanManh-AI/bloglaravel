@@ -39,6 +39,10 @@
     <link rel="stylesheet" href="{{ asset('lib/richtexteditor/rte_theme_default.css') }} " />
     <script type="text/javascript" src="{{ asset('lib/richtexteditor/rte.js') }}"></script>
     <script type="text/javascript" src="{{ asset('lib/richtexteditor/plugins/all_plugins.js') }}"></script>
+
+    {{-- Capcha Gooogle --}}
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+
     <style>
         body.modal-open {
             padding-right: 0px !important;

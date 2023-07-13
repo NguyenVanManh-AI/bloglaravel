@@ -21,15 +21,25 @@
                     <input name="password" value="{{ old('password') }}" type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
                     <label for="floatingPassword">Password</label>
                   </div>
-  
-                  <div class="form-check mb-3 ml-1">
-                    <input class="form-check-input" type="checkbox" value="" id="rememberPasswordCheck">
-                    <label class="form-check-label" for="rememberPasswordCheck">
-                      Remember password
-                    </label>
+
+                  <div class="row mb-3">
+                    <div class="col-7 p-0">
+                      <div class="ml-3 g-recaptcha" data-sitekey="{{ env('GOOGLE_RECAPTCHA_KEY') }}"></div>
+                      @if ($errors->has('g-recaptcha-response'))
+                          <span class="text-danger">{{ $errors->first('g-recaptcha-response') }}</span>
+                      @endif
+                    </div>
+                    <div class="col-5">
+                      <div class="form-check mb-3 text-right">
+                        <input class="form-check-input" type="checkbox" value="" id="rememberPasswordCheck">
+                        <label class="form-check-label" for="rememberPasswordCheck">
+                          Remember password
+                        </label>
+                      </div>
+                    </div>
                   </div>
-  
-                  <div class="d-grid">
+
+                    <div class="d-grid">
                     <button class="col-12 btn btn-lg btn-primary btn-login text-uppercase fw-bold mb-2" type="submit">Sign in</button>
                     <div class="text-center">
                       <a class="small" href="{{ route('register') }}">Do not have an account ? Sign up here.</a>

@@ -16,6 +16,7 @@ use Mail;
 use App\Mail\NotifyMail;
 use App\Mail\ForgotPassword;
 use App\Models\PasswordReset;
+use App\Rules\ReCaptcha;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -56,6 +57,7 @@ class BlogAuthController extends Controller
             $request->validate([
                 'email' => 'required|email',
                 'password' => 'required',
+                'g-recaptcha-response' => ['required', new ReCaptcha]
             ]);
             // $this->sendMail($user);
             $credentials = $request->only('email', 'password');

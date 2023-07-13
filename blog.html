@@ -2262,3 +2262,99 @@ Nói chung là có nhiều cách
 Đối với Modal Article Details cũng thế . Cũng có 2 cách là render ra nhiều và chỉ render 1 lần modal còn lại nội dung 
 cái nào thì dùng ajax lấy cái đấy . Thấy cách 1 là ok nhất . Tại vì nó cũng khỏe .  
 ================================================================
+Capcha Google . Laravel Google ReCaptcha V2 Example Tutorial
+    + https://www.itsolutionstuff.com/post/laravel-google-recaptcha-v2-example-tutorialexample.html
+
+B1 : Vào https://www.google.com/recaptcha/admin/create
+    + Label : localhost
+    + Ở reCAPTCHA type : Chọn Challenge (v2) Verify requests with a challenge tiếp đến 
+        + Chọn "I'm not a robot" Checkbox Validate requests with the "I'm not a robot" checkbox
+        + Hoặc Invisible reCAPTCHA badge Validate requests in the background
+    + Domains : localhost
+    => SUBMIT 
+
+B2 : Ta có được 
+    + SITE KEY   : 6LfVKR8nAAAAAB9oHO-h_S4DEi6dK0gArr3E6WzE
+    + SECRET KEY : 6LfVKR8nAAAAANKaCmS2frdoPhmu3sU8q3GY4C_c
+
+B3 : Điền vào file .env 
+    GOOGLE_RECAPTCHA_KEY=6LfVKR8nAAAAAB9oHO-h_S4DEi6dK0gArr3E6WzE
+    GOOGLE_RECAPTCHA_SECRET=6LfVKR8nAAAAANKaCmS2frdoPhmu3sU8q3GY4C_c
+
+B4 : C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel>php artisan make:rule ReCaptcha
+    Rule created successfully. 
+    Code vào : C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Rules\ReCaptcha.php
+        <?php
+            
+            namespace App\Rules;
+            
+            use Illuminate\Contracts\Validation\Rule;
+            use Illuminate\Support\Facades\Http;
+            
+            class ReCaptcha implements Rule
+            {
+                /**
+                * Create a new rule instance.
+                *
+                * @return void
+                */
+                public function __construct()
+                {
+                    
+                }
+                /**
+                * Determine if the validation rule passes.
+                *
+                * @param  string  $attribute
+                * @param  mixed  $value
+                * @return bool
+                */
+                public function passes($attribute, $value)
+                {
+                    $response = Http::get("https://www.google.com/recaptcha/api/siteverify",[
+                        'secret' => env('GOOGLE_RECAPTCHA_SECRET'),
+                        'response' => $value
+                    ]);
+                    
+                    return $response->json()["success"];
+                }
+                /**
+                * Get the validation error message.
+                *
+                * @return string
+                */
+                public function message()
+                {
+                    return 'The google recaptcha is required.';
+                }
+            }
+
+B5 : Thêm link js vào head của master.blade.php 
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+
+B6 : Thêm vào một form submit nào nó mà mình cần recaptcha google . Ví dụ là Login 
+    C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\resources\views\Blog\Auth\login.blade.php : 
+        <div class="g-recaptcha" data-sitekey="{{ env('GOOGLE_RECAPTCHA_KEY') }}"></div>
+        @if ($errors->has('g-recaptcha-response'))
+            <span class="text-danger">{{ $errors->first('g-recaptcha-response') }}</span>
+        @endif
+
+B7 : Thêm vào validate ở Controller tương tứng 
+    C:\Users\ADMIN\Downloads\ProLaravel\bloglaravel\app\Http\Controllers\BlogAuthController.php : 
+
+    public function userLogin(Request $request)
+    {
+        ...
+
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'g-recaptcha-response' => ['required', new ReCaptcha]
+        ]);
+
+        ...
+
+    }
+
+=> XONG. 
+================================================================
