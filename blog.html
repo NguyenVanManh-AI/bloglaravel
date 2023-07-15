@@ -2357,4 +2357,14 @@ B7 : Thêm vào validate ở Controller tương tứng
     }
 
 => XONG. 
+
+Hoặc ra có thể bỏ ngay đầu hàm xử lý submit form đó . Ví dụ : Bởi vì đây kiểu gì cũng là điều kiện chắc chắn phải có để submit form 
+Còn lại request có tách ra file riêng hay để ở đây luôn thì kệ nó , không quan tâm 
+    public function userLogin(Request $request)
+    {
+        $request->validate(['g-recaptcha-response' => ['required', new ReCaptcha]]);
+
+        ...
+
+    }
 ================================================================
